@@ -6,6 +6,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4.1-646CFF?logo=vite)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.11-38B2AC?logo=tailwindcss)](https://tailwindcss.com/)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/8b98100a-a308-4b2f-8c71-2c870ab143df/deploy-status)](https://app.netlify.com/projects/voice101ai/deploys)
 
 ## 📚 The Voice AI Intro Handbook
 
