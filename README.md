@@ -7,7 +7,7 @@
 [![Vite](https://img.shields.io/badge/Vite-5.4.1-646CFF?logo=vite)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.11-38B2AC?logo=tailwindcss)](https://tailwindcss.com/)
 
-## 📚 The Definitive Voice AI Handbook
+## 📚 The Voice AI Intro Handbook
 
 Voice101.ai is an interactive educational resource for engineers, designers, and product managers looking to understand and build with Voice AI technology. This handbook presents Voice AI concepts from fundamentals to advanced topics in an accessible, well-organized format.
 
