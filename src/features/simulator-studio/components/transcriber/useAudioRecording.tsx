@@ -24,39 +24,141 @@ export const useAudioRecording = (settings?: AudioSettings) => {
   const currentSettings = settings || { noise: 20, rate: 16000, lang: "auto" };
 
   const startRecording = async () => {
+    // Check if we already have an active recording
+    if (isRecording) {
+      console.warn('Recording already in progress');
+      return;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // First check if the browser supports the MediaDevices API
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('MediaDevices API not supported in this browser');
+      }
+
+      // Request microphone access with specific constraints
+      const constraints = {
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: currentSettings.rate,
+          channelCount: 1,
+        },
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      // Check if we actually got an audio track
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        throw new Error('No audio track found in the stream');
+      }
+
       const recorder = new MediaRecorder(stream);
       const chunks: Blob[] = [];
 
-      recorder.ondataavailable = e => chunks.push(e.data);
+      // Handle data available event
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
       
+      // Handle recording stop
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: "audio/webm" });
-        sendToWhisper(blob);
-        
-        // Stop all tracks to release microphone
-        stream.getTracks().forEach(track => track.stop());
+        try {
+          if (chunks.length > 0) {
+            const blob = new Blob(chunks, { type: "audio/webm" });
+            sendToWhisper(blob);
+          }
+        } catch (error) {
+          console.error('Error processing recording:', error);
+          toast({
+            title: "Processing Error",
+            description: "There was an error processing your recording.",
+            variant: "destructive",
+          });
+        } finally {
+          // Always stop all tracks to release the microphone
+          stream.getTracks().forEach(track => {
+            track.stop();
+            stream.removeTrack(track);
+          });
+          chunks.length = 0; // Clear chunks
+        }
+      };
+      
+      // Handle recorder errors
+      recorder.onerror = (event) => {
+        console.error('Recorder error:', event);
+        toast({
+          title: "Recording Error",
+          description: "An error occurred while recording.",
+          variant: "destructive",
+        });
+        stopRecording();
       };
       
       mediaRef.current = recorder;
-      recorder.start();
+      recorder.start(100); // Request data every 100ms for better UX
       setIsRecording(true);
+      
     } catch (error) {
       console.error("Error accessing microphone:", error);
+      let errorMessage = "Could not access your microphone.";
+      
+      if (error.name === 'NotAllowedError' || error.message.includes('permission')) {
+        errorMessage = "Microphone access was denied. Please allow microphone access to use this feature.";
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        errorMessage = "No microphone was found. Please ensure a microphone is connected.";
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        errorMessage = "Could not start the microphone. It might be in use by another application.";
+      } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
+        errorMessage = "The requested audio constraints could not be satisfied.";
+      } else if (error.name === 'TypeError') {
+        errorMessage = "Invalid audio constraints provided.";
+      }
+      
       toast({
         title: "Microphone Error",
-        description: "Could not access your microphone. Please check permissions.",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Reset recording state
+      setIsRecording(false);
+      mediaRef.current = null;
     }
   };
 
   const stopRecording = () => {
-    if (mediaRef.current && isRecording) {
-      mediaRef.current.stop();
-      setIsRecording(false);
-      setIsLoading(true);
+    try {
+      if (mediaRef.current && mediaRef.current.state !== 'inactive') {
+        // Stop the recorder first
+        mediaRef.current.stop();
+        
+        // Get the stream from the recorder
+        const stream = mediaRef.current.stream;
+        
+        // Stop all tracks in the stream
+        if (stream) {
+          stream.getTracks().forEach(track => {
+            track.stop();
+            stream.removeTrack(track);
+          });
+        }
+        
+        // Clean up
+        mediaRef.current = null;
+        setIsRecording(false);
+      }
+    } catch (error) {
+      console.error('Error stopping recording:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while stopping the recording.",
+        variant: "destructive",
+      });
     }
   };
 
