@@ -53,9 +53,13 @@ const SimulatorStudio = () => {
             <Route path="voice-assistant-tester" element={<VoiceAssistantTesterPage />} />
             <Route path="pronunciation-coach" element={<PronunciationCoachPage />} />
             <Route path="meeting-summarizer" element={<MeetingSummarizerPage />} />
-            <Route path="speech-emotion-detector" element={<SpeechEmotionDetector />} />
             <Route path="latency-tuner" element={<LatencyTunerPage />} />
             <Route path="turn-detector" element={<TurnDetectorPage />} />
+            <Route path="speech-emotion-detector" element={<SpeechEmotionDetector />} />
+            <Route path="interruption-handler" element={<div>Interruption Handler Simulator</div>} />
+            <Route path="context-drift-simulator" element={<div>Context Drift Simulator</div>} />
+            <Route path="legacy-fallback-gate" element={<div>Legacy Fallback Gate Simulator</div>} />
+            <Route path="noise-robustness-tester" element={<div>Noise Robustness Tester</div>} />
             <Route path="multi-speaker-mixer" element={<MultiSpeakerMixer />} />
             <Route path="memory-recall-test" element={<MemoryRecallTest />} />
             <Route path="voice-ai-faq" element={<VoiceAIFaqPage />} />

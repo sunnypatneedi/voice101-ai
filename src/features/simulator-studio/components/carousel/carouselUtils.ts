@@ -4,21 +4,21 @@ import { CarouselItem } from "../../lib/carousel/types";
 // Function to get the route path based on simulator title
 export const getSimulatorPath = (title: string): string => {
   const pathMap: Record<string, string> = {
-    "QuickTalk Transcriber": "/quick-talk-transcriber",
-    "StoryVoice Maker": "/story-voice-maker",
-    "SeniorCare Reminder": "/senior-care-reminder",
-    "Voice Assistant Tester": "/voice-assistant-tester",
-    "Pronunciation Coach": "/pronunciation-coach",
-    "Meeting Summarizer": "/meeting-summarizer",
-    "Speech Emotion Detector": "/speech-emotion-detector",
-    "Latency Tuner": "/latency-tuner",
-    "Turn Detector": "/turn-detector",
-    "Interruption Handler": "/interruption-handler",
-    "Context Drift Simulator": "/context-drift-simulator",
-    "Memory Recall Test": "/memory-recall-test",
-    "Legacy Fallback Gate": "/legacy-fallback-gate",
-    "Noise Robustness Tester": "/noise-robustness-tester",
-    "Multi-Speaker Mixer": "/multi-speaker-mixer",
+    "QuickTalk Transcriber": "/simulator-studio/quick-talk-transcriber",
+    "StoryVoice Maker": "/simulator-studio/story-voice-maker",
+    "SeniorCare Reminder": "/simulator-studio/senior-care-reminder",
+    "Voice Assistant Tester": "/simulator-studio/voice-assistant-tester",
+    "Pronunciation Coach": "/simulator-studio/pronunciation-coach",
+    "Meeting Summarizer": "/simulator-studio/meeting-summarizer",
+    "Speech Emotion Detector": "/simulator-studio/speech-emotion-detector",
+    "Latency Tuner": "/simulator-studio/latency-tuner",
+    "Turn Detector": "/simulator-studio/turn-detector",
+    "Interruption Handler": "/simulator-studio/interruption-handler",
+    "Context Drift Simulator": "/simulator-studio/context-drift-simulator",
+    "Memory Recall Test": "/simulator-studio/memory-recall-test",
+    "Legacy Fallback Gate": "/simulator-studio/legacy-fallback-gate",
+    "Noise Robustness Tester": "/simulator-studio/noise-robustness-tester",
+    "Multi-Speaker Mixer": "/simulator-studio/multi-speaker-mixer",
   };
   
   return pathMap[title] || "#";
