@@ -1,7 +1,7 @@
 
 import { useState } from "react";
-import { useToast } from "../../hooks/use-toast";
-import { MemoryResult } from "../../components/memory-recall/MemoryTypes";
+import { useToast } from "@/features/simulator-studio/hooks/use-toast";
+import { MemoryResult } from "@/features/simulator-studio/components/memory-recall/MemoryTypes";
 
 export const useMemoryRecall = () => {
   const [transcript, setTranscript] = useState("");
