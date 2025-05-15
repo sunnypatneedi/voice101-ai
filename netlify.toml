@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "npm run build && ./scripts/build-sim-studio.sh"
   publish = "dist"
 
 [build.environment]
@@ -10,6 +10,21 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Proxy sim-studio requests
+[[redirects]]
+  from = "/sim-studio/*"
+  to = "/sim-studio/index.html"
+  status = 200
+
+# Ensure sim-studio assets are served with correct MIME types
+[[headers]]
+  for = "/sim-studio/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
 # Set proper MIME types
 [[headers]]

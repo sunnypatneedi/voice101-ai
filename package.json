@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "generate:og-image": "tsx scripts/generate-og-image.ts",
-    "prebuild": "npm run generate:og-image"
+    "build:sim-studio": "./scripts/build-sim-studio.sh",
+    "prebuild": "npm run generate:og-image && npm run build:sim-studio"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
