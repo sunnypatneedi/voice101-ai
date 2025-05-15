@@ -1,0 +1,32 @@
+# Voice101.ai CODEOWNERS file
+#
+# This file defines the code owners for different parts of the codebase.
+# Each line is a file pattern followed by one or more owners.
+# Order is important; the last matching pattern takes precedence.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+*                   @sunnypatneedi
+
+# Documentation
+*.md                @sunnypatneedi
+/docs/              @sunnypatneedi
+
+# UI Components
+/src/components/    @sunnypatneedi
+/src/App.tsx        @sunnypatneedi
+/src/App.css        @sunnypatneedi
+/src/index.css      @sunnypatneedi
+
+# Data Files
+/src/data/          @sunnypatneedi
+
+# Pages
+/src/pages/         @sunnypatneedi
+
+# Configuration
+*.config.js         @sunnypatneedi
+*.config.ts         @sunnypatneedi
+/tsconfig*.json     @sunnypatneedi
+/package.json       @sunnypatneedi
+/.github/           @sunnypatneedi
