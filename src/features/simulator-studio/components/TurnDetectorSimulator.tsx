@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
-import { Card } from "../../components/ui/card";
-import { Slider } from "../../components/ui/slider";
-import { Button } from "../../components/ui/button";
+import { Card } from "@/features/simulator-studio/components/ui/card";
+import { Slider } from "@/features/simulator-studio/components/ui/slider";
+import { Button } from "@/features/simulator-studio/components/ui/button";
 import { Upload, Play, RotateCcw } from "lucide-react";
 
 const TurnDetectorSimulator: React.FC = () => {

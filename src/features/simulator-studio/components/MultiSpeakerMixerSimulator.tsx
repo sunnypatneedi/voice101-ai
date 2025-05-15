@@ -1,12 +1,12 @@
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { Slider } from "../../components/ui/slider";
-import { Switch } from "../../components/ui/switch";
-import { Label } from "../../components/ui/label";
-import { Button } from "../../components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "../../components/ui/toggle-group";
+import { Card, CardContent, CardHeader, CardTitle } from "@/features/simulator-studio/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/features/simulator-studio/components/ui/tabs";
+import { Slider } from "@/features/simulator-studio/components/ui/slider";
+import { Switch } from "@/features/simulator-studio/components/ui/switch";
+import { Label } from "@/features/simulator-studio/components/ui/label";
+import { Button } from "@/features/simulator-studio/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/features/simulator-studio/components/ui/toggle-group";
 import { Mic, Volume, Sliders } from "lucide-react";
 import { motion } from "framer-motion";
 

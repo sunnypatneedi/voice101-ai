@@ -1,10 +1,10 @@
 
 import React from "react";
-import PronunciationCoachSimulator from "../../components/PronunciationCoachSimulator";
-import { Button } from "../../components/ui/button";
+import PronunciationCoachSimulator from "@/features/simulator-studio/components/PronunciationCoachSimulator";
+import { Button } from "@/features/simulator-studio/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useIsMobile } from "../../hooks/use-mobile";
+import { useIsMobile } from "@/features/simulator-studio/hooks/use-mobile";
 
 const PronunciationCoachPage: React.FC = () => {
   const isMobile = useIsMobile();

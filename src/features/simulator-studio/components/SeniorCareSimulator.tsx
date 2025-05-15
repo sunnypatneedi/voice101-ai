@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
-import { Button } from "../../components/ui/button";
-import { toast } from "../../hooks/use-toast";
+import { Button } from "@/features/simulator-studio/components/ui/button";
+import { toast } from "@/features/simulator-studio/hooks/use-toast";
 import ReminderSettings from './senior-care/ReminderSettings';
 import ReminderResults from './senior-care/ReminderResults';
 

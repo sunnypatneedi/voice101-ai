@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { usePronunciationCoach, BreakdownLevel } from "../../hooks/usePronunciationCoach";
+import { Card, CardContent, CardHeader, CardTitle } from "@/features/simulator-studio/components/ui/card";
+import { usePronunciationCoach, BreakdownLevel } from "@/features/simulator-studio/hooks/usePronunciationCoach";
 import PhraseSelection from "./pronunciation-coach/PhraseSelection";
 import BreakdownSelector from "./pronunciation-coach/BreakdownSelector";
 import SpeedControl from "./pronunciation-coach/SpeedControl";

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { toast } from '../../hooks/use-toast';
+import { toast } from '@/features/simulator-studio/hooks/use-toast';
 import StoryControls from './story-voice/StoryControls';
 import AudioPlayer from './story-voice/AudioPlayer';
 

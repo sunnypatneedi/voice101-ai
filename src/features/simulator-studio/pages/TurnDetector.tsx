@@ -1,10 +1,10 @@
 
 import React from "react";
-import TurnDetectorSimulator from "../../components/TurnDetectorSimulator";
-import { Button } from "../../components/ui/button";
+import TurnDetectorSimulator from "@/features/simulator-studio/components/TurnDetectorSimulator";
+import { Button } from "@/features/simulator-studio/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useIsMobile } from "../../hooks/use-mobile";
+import { useIsMobile } from "@/features/simulator-studio/hooks/use-mobile";
 
 const TurnDetectorPage: React.FC = () => {
   const isMobile = useIsMobile();
