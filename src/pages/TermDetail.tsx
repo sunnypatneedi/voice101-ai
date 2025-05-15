@@ -5,8 +5,8 @@ import BookLayout from '../components/BookLayout';
 import { getTermBySlug } from '../data/terms';
 
 const TermDetail = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const term = getTermBySlug(slug || '');
+  const { category, id } = useParams<{ category: string; id: string }>();
+  const term = getTermBySlug(id || '');
   
   if (!term) {
     return (
