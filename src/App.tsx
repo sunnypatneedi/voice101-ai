@@ -26,7 +26,6 @@ const App = () => (
           <Route path="/advanced-concepts" element={<AdvancedConcepts />} />
           <Route path="/term/:category/:id" element={<TermDetail />} />
           <Route path="/faq" element={<FAQ />} />
-          <Route path="/simulator-studio" element={<SimulatorStudio />} />
           <Route path="/simulator-studio/*" element={<SimulatorStudio />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
