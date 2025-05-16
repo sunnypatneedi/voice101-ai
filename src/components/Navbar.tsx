@@ -64,6 +64,9 @@ const Navbar = () => {
             <Link to="/simulator-studio" className={`px-3 py-2 rounded-md ${isActive('/simulator-studio') ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted'}`} onClick={() => setIsMenuOpen(false)}>
               Simulator Studio
             </Link>
+            <Link to="/patterns-demo" className={`px-3 py-2 rounded-md ${isActive('/patterns-demo') ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted'}`} onClick={() => setIsMenuOpen(false)}>
+              UI Patterns
+            </Link>
             <a href="https://voiceaiandvoiceagents.com/" target="_blank" rel="noopener noreferrer" className="bg-accent/20 hover:bg-accent/30 text-accent font-medium px-3 py-2 rounded-md border border-accent/40 flex items-center justify-center gap-2" onClick={() => setIsMenuOpen(false)}>
               <span>Voice AI & Voice Agents</span>
               <ExternalLink className="w-4 h-4" />

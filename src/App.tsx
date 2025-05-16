@@ -17,6 +17,7 @@ const AdvancedConcepts = lazy(() => import('@/pages/AdvancedConcepts'));
 const TermDetail = lazy(() => import('@/pages/TermDetail'));
 const FAQ = lazy(() => import('@/pages/FAQ'));
 const SimulatorStudio = lazy(() => import('@/pages/SimulatorStudio'));
+const PatternsDemo = lazy(() => import('@/pages/patterns-demo'));
 
 // Error boundary fallback component
 const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
@@ -86,6 +87,10 @@ const AppRoutes = () => {
     { 
       path: "/simulator-studio", 
       element: <SimulatorStudio /> 
+    },
+    { 
+      path: "/patterns-demo", 
+      element: <PatternsDemo /> 
     },
     { path: "*", element: <NotFound /> },
   ], []);
