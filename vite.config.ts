@@ -48,7 +48,7 @@ export default defineConfig(({ mode }) => {
             // Group large dependencies
             ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-slot'],
             // Split simulator studio components
-            simulator: ['@/features/simulator-studio'],
+            simulator: ['@/features/simulator-studio/**/*'],
           },
         },
       },
