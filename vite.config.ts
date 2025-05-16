@@ -63,15 +63,29 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
-              // Group vendor dependencies
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              // Keep React and React DOM together
+              if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
                 return 'vendor-react';
               }
+              // Group UI libraries
               if (id.includes('@radix-ui')) {
                 return 'vendor-ui';
               }
+              // Group animation libraries
               if (id.includes('framer-motion')) {
                 return 'vendor-animations';
+              }
+              // Group routing
+              if (id.includes('react-router')) {
+                return 'vendor-routing';
+              }
+              // Group form handling
+              if (id.includes('react-hook-form') || id.includes('@hookform')) {
+                return 'vendor-forms';
+              }
+              // Group data fetching
+              if (id.includes('@tanstack/query')) {
+                return 'vendor-data';
               }
               return 'vendor-other';
             }
@@ -84,7 +98,21 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom'],
+      include: [
+        'react',
+        'react-dom',
+        'react-dom/client',
+        'react/jsx-runtime',
+        'react-router-dom',
+        '@tanstack/react-query',
+        'framer-motion',
+      ],
+      esbuildOptions: {
+        // Ensure React is only included once
+        loader: {
+          '.js': 'jsx',
+        },
+      },
     },
   };
 });

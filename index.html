@@ -39,7 +39,39 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <!-- Root element for the React application -->
+    <div id="root">
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+        <div style="text-align: center;">
+          <h1>Loading Voice101...</h1>
+          <p>Please wait while we load the application.</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Load the application -->
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Error handler -->
+    <script>
+      window.addEventListener('error', function(event) {
+        console.error('Global error:', event.error);
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = `
+            <div style="padding: 2rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+              <h1>Something went wrong</h1>
+              <p>We're having trouble loading the application. Please try refreshing the page.</p>
+              <button onclick="window.location.reload()" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 0.25rem; cursor: pointer;">
+                Refresh Page
+              </button>
+              <div style="margin-top: 1rem; padding: 1rem; background: #fef2f2; color: #991b1b; border-radius: 0.25rem; text-align: left; font-family: monospace; font-size: 0.875rem;">
+                ${event.error?.message || 'Unknown error occurred'}
+              </div>
+            </div>
+          `;
+        }
+      });
+    </script>
   </body>
 </html>
