@@ -1,8 +1,9 @@
 
-import React, { StrictMode, Suspense } from 'react';
+import React, { StrictMode, Suspense, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { register } from './service-worker-registration';
 
 // Simple loading component
 const LoadingFallback = () => (
@@ -125,7 +126,21 @@ if (!rootElement) {
 // Create root
 const root = createRoot(rootElement);
 
-// Render the app with error boundary and suspense
+// Register service worker
+const onUpdate = (registration: ServiceWorkerRegistration) => {
+  const waitingServiceWorker = registration.waiting;
+  if (waitingServiceWorker) {
+    waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+    window.location.reload();
+  }
+};
+
+// Register service worker in production
+if (process.env.NODE_ENV === 'production') {
+  register({ onUpdate });
+}
+
+// Render the app
 root.render(
   <StrictMode>
     <ErrorBoundary>
