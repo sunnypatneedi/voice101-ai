@@ -5,12 +5,9 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Copy public assets
+# Plugins
 [[plugins]]
   package = "@netlify/plugin-lighthouse"
-  
-[[plugins]]
-  package = "netlify-purge-cloudflare-on-deploy"
 
 # Handle client-side routing
 [[redirects]]
