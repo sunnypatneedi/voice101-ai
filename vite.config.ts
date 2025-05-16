@@ -10,12 +10,43 @@ import path from "path";
 export default defineConfig(({ mode }) => {
   const isProduction = mode === 'production';
   
-  // Get all @radix-ui packages from package.json
-  const packageJson = require('./package.json');
-  const radixUiPackages = Object.keys(packageJson.dependencies || {})
-    .filter(dep => dep.startsWith('@radix-ui/'));
-
   return {
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      'process.env.VITE_APP_ENV': JSON.stringify(process.env.VITE_APP_ENV || 'production'),
+    },
+    resolve: {
+      alias: [
+        // Alias for src directory
+        {
+          find: '@',
+          replacement: path.resolve(__dirname, './src')
+        },
+      ],
+      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
+      preserveSymlinks: true
+    },
+    optimizeDeps: {
+      // Let Vite handle dependency optimization automatically
+      include: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        'react-dom/client',
+        'react-router',
+        'react-router-dom',
+        'scheduler',
+      ],
+      esbuildOptions: {
+        // Configure esbuild options
+        jsx: 'automatic',
+        jsxDev: !isProduction,
+        jsxImportSource: 'react',
+        target: 'es2020',
+      },
+      // Don't force optimization on every start
+      force: false,
+    },
     // Server configuration
     server: {
       host: "::",
@@ -30,9 +61,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
-      react({
-        jsxImportSource: 'react',
-      }),
+      // Basic React plugin
+      react(),
       // Image optimization
       imagetools({
         defaultDirectives: (url) => {
@@ -48,7 +78,7 @@ export default defineConfig(({ mode }) => {
           });
         },
       }),
-      // PWA Configuration
+      // PWA Configuration with offline support
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
@@ -76,6 +106,17 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          // Skip waiting for service worker installation
+          skipWaiting: true,
+          clientsClaim: true,
+          // Clean up outdated caches
+          cleanupOutdatedCaches: true,
+          // Don't cache the service worker itself
+          dontCacheBustURLsMatching: /^\/assets\//,
+          // Add a filter to prevent caching of files with revision hashes
+          navigateFallback: 'index.html',
+          // Add a filter to prevent caching of files with revision hashes
+          navigateFallbackDenylist: [/^\/__/],
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -90,6 +131,21 @@ export default defineConfig(({ mode }) => {
                   statuses: [0, 200]
                 }
               }
+            },
+            // Add a runtime cache for assets
+            {
+              urlPattern: /^https?:\/\/voice101\.ai\/assets\//i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'assets-cache',
+                expiration: {
+                  maxEntries: 200,
+                  maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
             }
           ]
         },
@@ -98,107 +154,104 @@ export default defineConfig(({ mode }) => {
         }
       }),
       
-      // Compression for production builds
+      // Brotli compression for production builds
       isProduction && compression({
         algorithm: 'brotliCompress',
         ext: '.br',
         threshold: 1024,
+        filter: (file) => !/\.[a-z]+\.[a-f0-9]+\.(js|css|html|svg)$/i.test(file)
       }),
+      // Gzip compression for production builds
       isProduction && compression({
         algorithm: 'gzip',
         ext: '.gz',
         threshold: 1024,
+        filter: (file) => !/\.[a-z]+\.[a-f0-9]+\.(js|css|html|svg|br)$/i.test(file)
       }),
       // Bundle analyzer
       isProduction && visualizer({
         open: true,
         gzipSize: true,
         brotliSize: true,
-        filename: 'dist/stats.html',
-      }),
-    ].filter(Boolean) as any[],
-    resolve: {
-      alias: [
-        {
-          find: 'react',
-          replacement: path.resolve(__dirname, './node_modules/react'),
-        },
-        {
-          find: 'react-dom',
-          replacement: path.resolve(__dirname, './node_modules/react-dom'),
-        },
-        {
-          find: '@',
-          replacement: path.resolve(__dirname, './src'),
-        },
-      ],
-    },
+        filename: 'dist/stats.html'
+      })
+    ].filter(Boolean),
     // Build configuration
     build: {
-      outDir: 'dist',
       target: 'es2020',
-      sourcemap: !isProduction,
       minify: isProduction ? 'esbuild' : false,
-      cssMinify: true,
-      assetsInlineLimit: 4096, // 4kb
-      chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
+      sourcemap: !isProduction,
+      cssCodeSplit: true,
       rollupOptions: {
         output: {
-          assetFileNames: 'assets/[name]-[hash][extname]',
-          chunkFileNames: 'assets/[name]-[hash].js',
-          entryFileNames: 'assets/[name]-[hash].js',
-          manualChunks: (id) => {
+          manualChunks: (id: string) => {
             // Group React and related libraries
-            if (/[\\/]node_modules[\\/](react|react-dom|react-router-dom|react-markdown|rehype-|remark-|unified|zustand)/.test(id)) {
+            if (id.includes('node_modules/react') || 
+                id.includes('node_modules/react-dom') || 
+                id.includes('scheduler')) {
               return 'vendor-react';
             }
-            // Group UI components
-            if (/[\\/]node_modules[\\/](@radix-ui|class-variance-authority|clsx|lucide-react|tailwind-merge|tailwindcss-animate|sonner)/.test(id)) {
+            // Group UI libraries
+            if (id.includes('@radix-ui') || 
+                id.includes('class-variance-authority') ||
+                id.includes('clsx') ||
+                id.includes('tailwind-merge')) {
               return 'vendor-ui';
             }
-            // Group form handling
-            if (/[\\/]node_modules[\\/](@hookform|react-hook-form|zod)/.test(id)) {
+            // Group form handling libraries
+            if (id.includes('@hookform') || 
+                id.includes('react-hook-form') || 
+                id.includes('zod')) {
               return 'vendor-forms';
             }
             // Group data and state management
-            if (/[\\/]node_modules[\\/](@tanstack|react-query|date-fns|use-debounce)/.test(id)) {
+            if (id.includes('@tanstack') || 
+                id.includes('react-query') || 
+                id.includes('date-fns') || 
+                id.includes('use-debounce')) {
               return 'vendor-data';
             }
             // Group animations and transitions
-            if (/[\\/]node_modules[\\/](framer-motion|react-intersection-observer)/.test(id)) {
+            if (id.includes('framer-motion') || 
+                id.includes('@radix-ui/react-collapsible') ||
+                id.includes('@radix-ui/react-dialog') ||
+                id.includes('@radix-ui/react-popover') ||
+                id.includes('@radix-ui/react-tooltip')) {
               return 'vendor-animations';
             }
-            // Default vendor chunk
-            if (/[\\/]node_modules[\\/]/.test(id)) {
+            // Vendor chunk for remaining node_modules
+            if (id.includes('node_modules')) {
               return 'vendor';
             }
+            return null;
           },
+          // Enable tree-shaking
+          experimentalMinChunkSize: 10000,
+          // Ensure consistent chunk naming
+          chunkFileNames: 'assets/js/[name]-[hash].js',
+          entryFileNames: 'assets/js/[name]-[hash].js',
+          assetFileNames: 'assets/[ext]/[name]-[hash][extname]',
+        },
+        // Enable tree-shaking
+        treeshake: {
+          moduleSideEffects: 'no-external',
+          propertyReadSideEffects: false,
+          tryCatchDeoptimization: false,
         },
       },
-      terserOptions: {
-        compress: {
-          drop_console: isProduction,
-          drop_debugger: isProduction,
-        },
+      // Enable brotli and gzip compression
+      brotliSize: true,
+      chunkSizeWarningLimit: 1000,
+      // Enable CSS minification
+      cssMinify: isProduction,
+      // Enable module preloading
+      modulePreload: {
+        polyfill: true,
       },
-    },
-    optimizeDeps: {
-      include: [
-        'react',
-        'react-dom',
-        'react-dom/client',
-        'react/jsx-runtime',
-        'react-router-dom',
-        '@tanstack/react-query',
-        'framer-motion',
-      ],
-      esbuildOptions: {
-        loader: {
-          '.js': 'jsx',
-        },
-        define: {
-          'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
-        },
+      // Enable dynamic imports
+      dynamicImportVarsOptions: {
+        warnOnError: true,
+        exclude: [],
       },
     },
   };

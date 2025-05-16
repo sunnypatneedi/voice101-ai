@@ -9,22 +9,17 @@
     "not op_mini all"
   ],
   "scripts": {
-    "prebuild": "npm run generate:fallback-og-image && npm run generate:og-image && npm run optimize:images && npm run generate-pwa-assets",
+    "prebuild": "npm run optimize:images && npm run generate-pwa-assets",
     "generate-pwa-assets": "node --experimental-json-modules scripts/generate-pwa-assets.mjs",
     "test": "vitest",
-    "test:puppeteer": "node scripts/test-puppeteer.js",
-    "postinstall": "npm run generate-pwa-assets && npm run generate:fallback-og-image",
     "build": "vite build && cp -r public/* dist/",
     "build:dev": "vite build --mode development && cp -r public/* dist/",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:og-image": "tsx scripts/generate-og-image.ts",
-    "generate:fallback-og-image": "node scripts/create-fallback-og-image.js",
     "optimize:images": "node --experimental-json-modules scripts/convertImages.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
-    "@napi-rs/canvas": "^0.1.70",
     "@radix-ui/react-accordion": "^1.2.10",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -78,10 +73,11 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
+    "@babel/plugin-transform-react-jsx": "^7.27.1",
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.5.5",
-    "@types/puppeteer": "^5.4.7",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vite-pwa/vitepress": "^1.0.0",
@@ -94,7 +90,6 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "postcss": "^8.4.47",
-    "puppeteer": "^24.8.2",
     "rollup-plugin-visualizer": "^5.14.0",
     "sharp": "^0.34.1",
     "tailwindcss": "^3.4.11",

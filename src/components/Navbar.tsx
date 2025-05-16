@@ -32,10 +32,15 @@ const Navbar = () => {
             FAQs
             {isActive('/faq') && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary rounded-full"></span>}
           </Link>
-          <Link to="/simulator-studio" className={`relative font-medium ${isActive('/simulator-studio') ? 'text-primary' : 'text-foreground/80 hover:text-foreground'} transition-colors`}>
-            Simulator Studio
-            {isActive('/simulator-studio') && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary rounded-full"></span>}
-          </Link>
+          <div className="relative">
+            <Link to="/simulator-studio" className={`relative font-medium ${isActive('/simulator-studio') ? 'text-primary' : 'text-foreground/80 hover:text-foreground'} transition-colors`}>
+              Simulator Studio
+              <span className="ml-1.5 px-1.5 py-0.5 text-xs font-medium rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                Beta
+              </span>
+              {isActive('/simulator-studio') && <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary rounded-full"></span>}
+            </Link>
+          </div>
           <a href="https://voiceaiandvoiceagents.com/" target="_blank" rel="noopener noreferrer" className="bg-accent/20 hover:bg-accent/30 text-accent font-medium px-4 py-2 rounded-md border border-accent/40 transition-colors flex items-center gap-2">
             <span>Voice AI & Voice Agents</span>
             <ExternalLink className="w-4 h-4" />
@@ -61,9 +66,15 @@ const Navbar = () => {
             <Link to="/faq" className={`px-3 py-2 rounded-md ${isActive('/faq') ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted'}`} onClick={() => setIsMenuOpen(false)}>
               FAQs
             </Link>
-            <Link to="/simulator-studio" className={`px-3 py-2 rounded-md ${isActive('/simulator-studio') ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted'}`} onClick={() => setIsMenuOpen(false)}>
-              Simulator Studio
-            </Link>
+            <div className="space-y-1">
+              <Link to="/simulator-studio" className={`px-3 py-2 rounded-md ${isActive('/simulator-studio') ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted'} flex items-center`} onClick={() => setIsMenuOpen(false)}>
+                Simulator Studio
+                <span className="ml-1.5 px-1.5 py-0.5 text-xs font-medium rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                  Beta
+                </span>
+              </Link>
+              <p className="px-3 text-xs text-muted-foreground">Work in progress - new features coming soon!</p>
+            </div>
             <Link to="/patterns-demo" className={`px-3 py-2 rounded-md ${isActive('/patterns-demo') ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted'}`} onClick={() => setIsMenuOpen(false)}>
               UI Patterns
             </Link>
