@@ -98,21 +98,36 @@ export function CommandPalette({
   if (!isMounted) return null;
 
   return (
-    <CommandPrimitive
-      className={cn(
-        'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-        'w-[calc(100%-2rem)] max-w-2xl max-h-[80vh]',
-        'bg-background border rounded-lg shadow-lg',
-        'overflow-hidden flex flex-col',
-        'transition-opacity duration-200',
-        open ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      )}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          onOpenChange(false);
-        }
-      }}
+    <>
+      {/* Overlay */}
+      <div
+        className={cn(
+          'fixed inset-0 bg-background/80 backdrop-blur-sm',
+          'transition-opacity duration-200',
+          open ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        )}
+        onClick={() => onOpenChange(false)}
+        aria-hidden="true"
+      />
+      
+      {/* Command Palette */}
+      <CommandPrimitive
+        className={cn(
+          'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
+          'w-[calc(100%-2rem)] max-w-2xl max-h-[80vh]',
+          'bg-background border rounded-lg shadow-2xl',
+          'overflow-hidden flex flex-col',
+          'transition-all duration-200',
+          open 
+            ? 'opacity-100 translate-y-0 scale-100' 
+            : 'opacity-0 translate-y-2 scale-95 pointer-events-none'
+        )}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            onOpenChange(false);
+          }
+        }}
     >
       <div className="flex items-center px-3 border-b">
         <Search className="w-4 h-4 mr-2 opacity-50" />
@@ -181,7 +196,8 @@ export function CommandPalette({
           <span>to select</span>
         </div>
       </div>
-    </CommandPrimitive>
+      </CommandPrimitive>
+    </>
   );
 }
 

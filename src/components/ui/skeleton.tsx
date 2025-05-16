@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils"
 import { forwardRef } from "react"
+import { cn } from "@/lib/utils"
 
 type SkeletonVariant = 'text' | 'circle' | 'rectangle' | 'card' | 'line'
 
@@ -9,6 +9,7 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   shimmer?: boolean
   height?: number | string
   width?: number | string
+  'aria-label'?: string
 }
 
 const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
@@ -20,6 +21,7 @@ const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
     height,
     width,
     style,
+    'aria-label': ariaLabel = 'Loading...',
     ...props
   }, ref) => {
     const baseStyles = {
@@ -35,9 +37,16 @@ const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
       line: 'h-1 w-full',
     }
 
+    const shimmerClass = 'after:absolute after:inset-0 after:-translate-x-full after:animate-[shimmer_2s_infinite] after:bg-gradient-to-r after:from-transparent after:via-foreground/5 after:to-transparent dark:after:via-foreground/10'
+
     if (variant === 'text' && lines > 1) {
       return (
-        <div className="space-y-2 w-full" style={baseStyles}>
+        <div 
+          className="space-y-2 w-full" 
+          style={baseStyles}
+          aria-label={ariaLabel}
+          role="status"
+        >
           {Array.from({ length: lines }).map((_, i) => (
             <div
               key={i}
@@ -45,7 +54,7 @@ const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
               className={cn(
                 'animate-pulse bg-muted relative overflow-hidden',
                 variants[variant],
-                shimmer && 'after:absolute after:inset-0 after:-translate-x-full after:animate-[shimmer_2s_infinite] after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent',
+                shimmer && shimmerClass,
                 className
               )}
               style={{
@@ -53,6 +62,7 @@ const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
                 ...style,
               }}
               {...props}
+              aria-hidden={i > 0}
             />
           ))}
         </div>
@@ -66,13 +76,15 @@ const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
         className={cn(
           'animate-pulse bg-muted relative overflow-hidden',
           variants[variant],
-          shimmer && 'after:absolute after:inset-0 after:-translate-x-full after:animate-[shimmer_2s_infinite] after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent',
+          shimmer && shimmerClass,
           className
         )}
         style={{
           ...baseStyles,
           ...style,
         }}
+        aria-label={ariaLabel}
+        role="status"
         {...props}
       />
     )
