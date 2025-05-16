@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { visualizer } from "rollup-plugin-visualizer";
 import compression from 'vite-plugin-compression';
+import { imagetools } from 'vite-imagetools';
 import path from "path";
 
 // https://vitejs.dev/config/
@@ -29,6 +30,21 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react({
         jsxImportSource: 'react',
+      }),
+      // Image optimization
+      imagetools({
+        defaultDirectives: (url) => {
+          const urlObj = new URL(url, 'imported-from-file');
+          const format = urlObj.searchParams.get('format') || 'webp';
+          
+          return new URLSearchParams({
+            format,
+            quality: '85',
+            w: '1200',
+            as: 'picture',
+            metadata: 'copyright,location',
+          });
+        },
       }),
       // Compression for production builds
       isProduction && compression({
@@ -66,12 +82,16 @@ export default defineConfig(({ mode }) => {
       ],
     },
     build: {
+      outDir: "dist",
       target: 'esnext',
-      minify: 'terser',
-      chunkSizeWarningLimit: 1000,
-      sourcemap: isProduction ? false : 'inline',
+      sourcemap: !isProduction,
+      minify: isProduction ? 'esbuild' : false,
+      assetsInlineLimit: 4096, // 4kb
       rollupOptions: {
         output: {
+          assetFileNames: 'assets/[name]-[hash][extname]',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
           manualChunks: {
             // Core React and related
             'vendor-react': [

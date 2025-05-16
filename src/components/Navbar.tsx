@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, BookOpen, ExternalLink } from 'lucide-react';
+import { OptimizedLogo } from './OptimizedLogo';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,7 +15,7 @@ const Navbar = () => {
   return <nav className="sticky top-0 z-50 glass-effect">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <img src="/assets/images/logo.png" alt="Voice101 Logo" className="w-20 h-20" />
+          <OptimizedLogo className="w-20 h-20" />
         </Link>
         
         {/* Desktop Navigation */}
