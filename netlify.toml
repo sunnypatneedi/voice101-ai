@@ -1,6 +1,13 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  
+# Copy public assets
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+[[plugins]]
+  package = "netlify-purge-cloudflare-on-deploy"
 
 [build.environment]
   NODE_VERSION = "18"

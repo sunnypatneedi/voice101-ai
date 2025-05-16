@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "build": "vite build && cp -r public/* dist/",
+    "build:dev": "vite build --mode development && cp -r public/* dist/",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate:og-image": "tsx scripts/generate-og-image.ts",
