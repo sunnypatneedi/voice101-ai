@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => {
       preserveSymlinks: true
     },
     optimizeDeps: {
-      // Let Vite handle dependency optimization automatically
+      // Force include all React-related dependencies
       include: [
         'react',
         'react-dom',
@@ -36,16 +36,56 @@ export default defineConfig(({ mode }) => {
         'react-router',
         'react-router-dom',
         'scheduler',
+        // Include all Radix UI components
+        '@radix-ui/*',
+        // Include other UI libraries
+        'class-variance-authority',
+        'clsx',
+        'tailwind-merge',
+        'framer-motion',
+        'cmdk',
+        'vaul',
+        'sonner',
+        'embla-carousel',
+        '@floating-ui/dom',
+        '@floating-ui/react',
+        '@floating-ui/react-dom',
+        // Ensure React is properly optimized
+        'react/jsx-dev-runtime',
+        'scheduler/tracing',
+        'use-sync-external-store',
+        'react-refresh/runtime'
       ],
       esbuildOptions: {
-        // Configure esbuild options
+        // Ensure React is treated as a singleton
+        define: {
+          'process.env.NODE_ENV': JSON.stringify(mode),
+          'process.env.NODE_DEBUG': 'false',
+          'process.env.REACT_APP_ENV': JSON.stringify(mode),
+          'process.env.BROWSER': 'true',
+          global: 'globalThis',
+        },
+        // Target modern browsers
+        target: 'es2020',
+        // Enable JSX
         jsx: 'automatic',
         jsxDev: !isProduction,
         jsxImportSource: 'react',
-        target: 'es2020',
+        // Tree-shake unused code
+        treeShaking: true,
+        // Ensure React is marked as external
+        external: ['react', 'react-dom', 'react/jsx-runtime'],
       },
-      // Don't force optimization on every start
-      force: false,
+      // Force optimization to ensure consistent bundling
+      force: true,
+      // Disable commonjs for better tree-shaking
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true,
+        // Ensure React is not bundled multiple times
+        ignoreTryCatch: false,
+        ignoreDynamicRequires: true,
+      },
     },
     // Server configuration
     server: {
@@ -61,7 +101,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
-      // Basic React plugin
+      // Minimal React plugin configuration
       react(),
       // Image optimization
       imagetools({
@@ -168,11 +208,11 @@ export default defineConfig(({ mode }) => {
         threshold: 1024,
         filter: (file) => !/\.[a-z]+\.[a-f0-9]+\.(js|css|html|svg|br)$/i.test(file)
       }),
-      // Bundle analyzer
+      // Bundle analyzer - only include gzip size to avoid duplicate brotliSize
       isProduction && visualizer({
         open: true,
         gzipSize: true,
-        brotliSize: true,
+        brotliSize: false, // Disable brotli size in visualizer since it's configured in build
         filename: 'dist/stats.html'
       })
     ].filter(Boolean),
@@ -180,22 +220,51 @@ export default defineConfig(({ mode }) => {
     build: {
       target: 'es2020',
       minify: isProduction ? 'esbuild' : false,
-      sourcemap: !isProduction,
+      // Only enable sourcemaps in development
+      sourcemap: isProduction ? false : true,
       cssCodeSplit: true,
+      // Ensure consistent chunking
+      chunkSizeWarningLimit: 1000,
+      // Disable brotli size reporting
+      brotliSize: false,
+      // Enable commonjs for better compatibility
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true,
+      },
       rollupOptions: {
         output: {
           manualChunks: (id: string) => {
-            // Group React and related libraries
+            // Ensure React and its runtime are in the same chunk
             if (id.includes('node_modules/react') || 
                 id.includes('node_modules/react-dom') || 
-                id.includes('scheduler')) {
+                id.includes('scheduler') ||
+                id.includes('react/jsx-runtime') ||
+                id.includes('react-dom/client') ||
+                id.includes('scheduler/tracing') ||
+                id.includes('use-sync-external-store') ||
+                id.includes('react/jsx-dev-runtime') ||
+                id.includes('react-refresh/runtime')) {
               return 'vendor-react';
             }
-            // Group UI libraries
+            
+            // Group all UI libraries together
             if (id.includes('@radix-ui') || 
                 id.includes('class-variance-authority') ||
                 id.includes('clsx') ||
-                id.includes('tailwind-merge')) {
+                id.includes('tailwind-merge') ||
+                id.includes('framer-motion') ||
+                id.includes('@radix-ui/') ||
+                id.includes('cmdk') ||
+                id.includes('vaul') ||
+                id.includes('sonner') ||
+                id.includes('embla-carousel') ||
+                id.includes('@floating-ui') ||
+                id.includes('@floating-ui/dom') ||
+                id.includes('@floating-ui/react') ||
+                id.includes('@floating-ui/react-dom') ||
+                id.includes('@floating-ui/utils') ||
+                id.includes('@floating-ui/core')) {
               return 'vendor-ui';
             }
             // Group form handling libraries
@@ -225,14 +294,14 @@ export default defineConfig(({ mode }) => {
             }
             return null;
           },
-          // Enable tree-shaking
+          // Configure chunk optimization
           experimentalMinChunkSize: 10000,
           // Ensure consistent chunk naming
           chunkFileNames: 'assets/js/[name]-[hash].js',
           entryFileNames: 'assets/js/[name]-[hash].js',
           assetFileNames: 'assets/[ext]/[name]-[hash][extname]',
         },
-        // Enable tree-shaking
+        // Configure tree-shaking
         treeshake: {
           moduleSideEffects: 'no-external',
           propertyReadSideEffects: false,
@@ -240,8 +309,7 @@ export default defineConfig(({ mode }) => {
         },
       },
       // Enable brotli and gzip compression
-      brotliSize: true,
-      chunkSizeWarningLimit: 1000,
+      // brotliSize and chunkSizeWarningLimit are already defined above
       // Enable CSS minification
       cssMinify: isProduction,
       // Enable module preloading
