@@ -1,0 +1,72 @@
+[build]
+  command = "npm install && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+  # Disable Puppeteer's download during install
+  PUPPETEER_SKIP_DOWNLOAD = "true"
+  # Use system Chrome in Netlify's environment
+  PUPPETEER_EXECUTABLE_PATH = "/usr/bin/google-chrome-stable"
+
+# Install Chrome for Puppeteer
+[[plugins]]
+  package = "./netlify/plugins/install-chrome"
+
+# Copy public assets
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+[[plugins]]
+  package = "netlify-purge-cloudflare-on-deploy"
+
+# Required for Chrome installation
+[build.apt]
+  packages = ["wget", "gnupg2", "google-chrome-stable"]
+
+# Handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Proxy sim-studio requests
+[[redirects]]
+  from = "/sim-studio/*"
+  to = "/sim-studio/index.html"
+  status = 200
+
+# Ensure sim-studio assets are served with correct MIME types
+[[headers]]
+  for = "/sim-studio/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Set proper MIME types
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Content-Type = "text/javascript"
+
+[[headers]]
+  for = "/*.mjs"
+  [headers.values]
+    Content-Type = "text/javascript"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Content-Type = "text/css"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/json"
+
+[dev]
+  command = "npm run dev"
+  port = 8080
+  framework = "#custom"

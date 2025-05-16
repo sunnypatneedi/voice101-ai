@@ -1,8 +1,11 @@
 
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import BookLayout from '../components/BookLayout';
 import TermCard from '../components/TermCard';
 import { terms } from '../data/terms';
 import { Separator } from "@/components/ui/separator";
+import { Button } from '@/components/ui/button';
 
 const FoundationalTerms = () => {
   const foundationalTerms = terms.filter(term => term.category === 'foundational');
@@ -30,6 +33,12 @@ const FoundationalTerms = () => {
   
   return (
     <BookLayout title="Foundational Terms">
+      <Button asChild variant="ghost" className="mb-4 -ml-4">
+        <Link to="/" className="flex items-center gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+      </Button>
       <div className="animate-fade-in">
         <div className="mb-12">
           <p className="text-lg text-foreground/80 max-w-3xl">
