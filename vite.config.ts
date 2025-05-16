@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { visualizer } from "rollup-plugin-visualizer";
 import compression from 'vite-plugin-compression';
@@ -6,10 +6,13 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current directory.
-  const env = loadEnv(mode, process.cwd(), '');
   const isProduction = mode === 'production';
   
+  // Get all @radix-ui packages from package.json
+  const packageJson = require('./package.json');
+  const radixUiPackages = Object.keys(packageJson.dependencies || {})
+    .filter(dep => dep.startsWith('@radix-ui/'));
+
   return {
     server: {
       host: "::",
@@ -17,24 +20,26 @@ export default defineConfig(({ mode }) => {
       proxy: {
         // Proxy requests to /simulator-studio to the local dev server of the sim-studio
         '/sim-studio': {
-          target: 'http://localhost:5173', // Default Vite dev server port
+          target: 'http://localhost:5173',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/sim-studio/, ''),
         },
       },
     },
     plugins: [
-      react(),
+      react({
+        jsxImportSource: 'react',
+      }),
       // Compression for production builds
       isProduction && compression({
         algorithm: 'brotliCompress',
         ext: '.br',
-        threshold: 1024, // 1KB
+        threshold: 1024,
       }),
       isProduction && compression({
         algorithm: 'gzip',
         ext: '.gz',
-        threshold: 1024, // 1KB
+        threshold: 1024,
       }),
       // Bundle analyzer
       isProduction && visualizer({
@@ -43,57 +48,69 @@ export default defineConfig(({ mode }) => {
         brotliSize: true,
         filename: 'dist/stats.html',
       }),
-    ].filter(Boolean),
+    ].filter(Boolean) as any[],
     resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "./src"),
-      },
+      alias: [
+        {
+          find: 'react',
+          replacement: path.resolve(__dirname, './node_modules/react'),
+        },
+        {
+          find: 'react-dom',
+          replacement: path.resolve(__dirname, './node_modules/react-dom'),
+        },
+        {
+          find: '@',
+          replacement: path.resolve(__dirname, './src'),
+        },
+      ],
     },
     build: {
       target: 'esnext',
       minify: 'terser',
-      chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
+      chunkSizeWarningLimit: 1000,
+      sourcemap: isProduction ? false : 'inline',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Core React and related
+            'vendor-react': [
+              'react',
+              'react-dom',
+              'react-dom/client',
+              'scheduler',
+            ],
+            // UI libraries
+            'vendor-ui': [
+              'class-variance-authority',
+              'clsx',
+              'tailwind-merge',
+              'tailwindcss-animate',
+              ...radixUiPackages,
+            ],
+            // Animation libraries
+            'vendor-animations': [
+              'framer-motion',
+            ],
+            // Routing - let Vite handle these dependencies automatically
+            'vendor-routing': ['react-router-dom'],
+            // Data fetching
+            'vendor-data': [
+              '@tanstack/react-query',
+            ],
+            // Forms
+            'vendor-forms': [
+              'react-hook-form',
+              '@hookform/resolvers',
+              'zod',
+            ],
+          },
+        },
+      },
       terserOptions: {
         compress: {
           drop_console: isProduction,
           drop_debugger: isProduction,
-        },
-      },
-      rollupOptions: {
-        output: {
-          manualChunks: (id) => {
-            if (id.includes('node_modules')) {
-              // Keep React and React DOM together
-              if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
-                return 'vendor-react';
-              }
-              // Group UI libraries
-              if (id.includes('@radix-ui')) {
-                return 'vendor-ui';
-              }
-              // Group animation libraries
-              if (id.includes('framer-motion')) {
-                return 'vendor-animations';
-              }
-              // Group routing
-              if (id.includes('react-router')) {
-                return 'vendor-routing';
-              }
-              // Group form handling
-              if (id.includes('react-hook-form') || id.includes('@hookform')) {
-                return 'vendor-forms';
-              }
-              // Group data fetching
-              if (id.includes('@tanstack/query')) {
-                return 'vendor-data';
-              }
-              return 'vendor-other';
-            }
-            // Split simulator studio code
-            if (id.includes('/simulator-studio/')) {
-              return 'simulator-studio';
-            }
-          },
         },
       },
     },
@@ -108,9 +125,11 @@ export default defineConfig(({ mode }) => {
         'framer-motion',
       ],
       esbuildOptions: {
-        // Ensure React is only included once
         loader: {
           '.js': 'jsx',
+        },
+        define: {
+          'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
         },
       },
     },
