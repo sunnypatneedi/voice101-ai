@@ -9,6 +9,7 @@
     "not op_mini all"
   ],
   "scripts": {
+    "postinstall": "npm rebuild --build-from-source sharp",
     "prebuild": "npm run optimize:images && npm run generate-pwa-assets",
     "generate-pwa-assets": "node --experimental-json-modules scripts/generate-pwa-assets.mjs",
     "test": "vitest",
@@ -101,5 +102,12 @@
     "vite-imagetools": "^7.1.0",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "resolutions": {
+    "sharp": "^0.34.1"
   }
 }
