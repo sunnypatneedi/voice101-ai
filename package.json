@@ -9,19 +9,21 @@
     "not op_mini all"
   ],
   "scripts": {
-    "prebuild": "npm run generate:og-image && npm run optimize:images && npm run generate-pwa-assets",
+    "prebuild": "npm run generate:fallback-og-image && npm run generate:og-image && npm run optimize:images && npm run generate-pwa-assets",
     "generate-pwa-assets": "node --experimental-json-modules scripts/generate-pwa-assets.mjs",
     "test": "vitest",
-    "postinstall": "npm run generate-pwa-assets",
+    "postinstall": "npm run generate-pwa-assets && npm run generate:fallback-og-image",
     "build": "vite build && cp -r public/* dist/",
     "build:dev": "vite build --mode development && cp -r public/* dist/",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate:og-image": "tsx scripts/generate-og-image.ts",
+    "generate:fallback-og-image": "node scripts/create-fallback-og-image.js",
     "optimize:images": "node --experimental-json-modules scripts/convertImages.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@napi-rs/canvas": "^0.1.70",
     "@radix-ui/react-accordion": "^1.2.10",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",

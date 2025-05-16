@@ -1,16 +1,18 @@
 [build]
-  command = "npm run build"
+  command = "npm install puppeteer@latest && npx puppeteer browsers install chrome && npm run build"
   publish = "dist"
-  
+
+[build.environment]
+  NODE_VERSION = "18"
+  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "false"
+  PUPPETEER_EXECUTABLE_PATH = "/opt/buildhome/.cache/puppeteer"
+
 # Copy public assets
 [[plugins]]
   package = "@netlify/plugin-lighthouse"
   
 [[plugins]]
   package = "netlify-purge-cloudflare-on-deploy"
-
-[build.environment]
-  NODE_VERSION = "18"
 
 # Handle client-side routing
 [[redirects]]
