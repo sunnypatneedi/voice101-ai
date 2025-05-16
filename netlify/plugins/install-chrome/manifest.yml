@@ -1,0 +1,15 @@
+# Plugin manifest for Chrome installation
+name: netlify-plugin-install-chrome
+type: package
+inputs:
+  - name: enabled
+    description: Enable Chrome installation
+    type: boolean
+    default: true
+compatibility:
+  features:
+    builds: true
+    functions: true
+    edge_handlers: false
+    edge_functions: false
+    pages: false
