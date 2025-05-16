@@ -9,7 +9,6 @@
     "not op_mini all"
   ],
   "scripts": {
-    "postinstall": "npm rebuild --build-from-source sharp",
     "prebuild": "npm run optimize:images && npm run generate-pwa-assets",
     "generate-pwa-assets": "node --experimental-json-modules scripts/generate-pwa-assets.mjs",
     "test": "vitest",

@@ -1,17 +1,13 @@
 [build]
-  command = "npm install --include=optional && npm rebuild sharp && npm run build"
+  command = "npm install --include=optional && npm run build"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
-  # Ensure sharp is built for the correct platform
-  SHARP_IGNORE_GLOBAL_LIBVIPS = "1"
   # Enable corepack for better package management
   ENABLE_NEXTJS_PACKAGE_IMPORTS = "1"
-  # Ensure sharp is built with the correct platform
-  npm_config_platform = "linux"
-  npm_config_arch = "x64"
-  npm_config_target_arch = "x64"
+  # Force npm to rebuild native addons
+  NPM_FLAGS = "--build-from-source"
 
 # Plugins
 [[plugins]]
