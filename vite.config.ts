@@ -16,6 +16,11 @@ export default defineConfig(({ mode }) => {
     .filter(dep => dep.startsWith('@radix-ui/'));
 
   return {
+    define: {
+      'process.env': process.env,
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+      'process.env.VITE_APP_ENV': JSON.stringify(process.env.VITE_APP_ENV || 'production'),
+    },
     // Server configuration
     server: {
       host: "::",
@@ -32,6 +37,13 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react({
         jsxImportSource: 'react',
+        // @ts-ignore - babel config is valid but not in the type definition
+        babel: {
+          plugins: [
+            ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }],
+            ['@babel/plugin-transform-modules-commonjs', { strictMode: false }]
+          ]
+        }
       }),
       // Image optimization
       imagetools({
@@ -76,6 +88,17 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          // Skip waiting for service worker installation
+          skipWaiting: true,
+          clientsClaim: true,
+          // Clean up outdated caches
+          cleanupOutdatedCaches: true,
+          // Don't cache the service worker itself
+          dontCacheBustURLsMatching: /^\/assets\//,
+          // Add a filter to prevent caching of files with revision hashes
+          navigateFallback: 'index.html',
+          // Add a filter to prevent caching of files with revision hashes
+          navigateFallbackDenylist: [/^\/__/],
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -85,6 +108,21 @@ export default defineConfig(({ mode }) => {
                 expiration: {
                   maxEntries: 10,
                   maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            // Add a runtime cache for assets
+            {
+              urlPattern: /^https?:\/\/voice101\.ai\/assets\//i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'assets-cache',
+                expiration: {
+                  maxEntries: 200,
+                  maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
                 },
                 cacheableResponse: {
                   statuses: [0, 200]
@@ -103,11 +141,13 @@ export default defineConfig(({ mode }) => {
         algorithm: 'brotliCompress',
         ext: '.br',
         threshold: 1024,
+        filter: (file) => !file.includes('sw.js') // Don't compress service worker
       }),
       isProduction && compression({
         algorithm: 'gzip',
         ext: '.gz',
         threshold: 1024,
+        filter: (file) => !file.includes('sw.js') // Don't compress service worker
       }),
       // Bundle analyzer
       isProduction && visualizer({
@@ -121,11 +161,11 @@ export default defineConfig(({ mode }) => {
       alias: [
         {
           find: 'react',
-          replacement: path.resolve(__dirname, './node_modules/react'),
+          replacement: 'react',
         },
         {
           find: 'react-dom',
-          replacement: path.resolve(__dirname, './node_modules/react-dom'),
+          replacement: 'react-dom',
         },
         {
           find: '@',
@@ -139,37 +179,66 @@ export default defineConfig(({ mode }) => {
       target: 'es2020',
       sourcemap: !isProduction,
       minify: isProduction ? 'esbuild' : false,
+      modulePreload: {
+        polyfill: false
+      },
+      cssCodeSplit: true,
+      ssr: false,
+      // Ensure React is properly bundled
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true,
+        esmExternals: true,
+        requireReturnsDefault: 'auto',
+      },
+      // Build optimization
       cssMinify: true,
       assetsInlineLimit: 4096, // 4kb
       chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
       rollupOptions: {
+        onwarn(warning, warn) {
+          // Skip certain warnings
+          if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+            return;
+          }
+          warn(warning);
+        },
         output: {
           assetFileNames: 'assets/[name]-[hash][extname]',
           chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',
           manualChunks: (id) => {
-            // Group React and related libraries
-            if (/[\\/]node_modules[\\/](react|react-dom|react-router-dom|react-markdown|rehype-|remark-|unified|zustand)/.test(id)) {
+            // Explicitly bundle React and its dependencies together
+            if ([
+              'react',
+              'react-dom',
+              'scheduler',
+              'react/jsx-runtime',
+              'react/jsx-dev-runtime',
+              'react-router',
+              'react-router-dom'
+            ].some(pkg => id.includes(`/node_modules/${pkg}/`) || id.includes(`\\node_modules\\${pkg}\\`))) {
               return 'vendor-react';
             }
-            // Group UI components
-            if (/[\\/]node_modules[\\/](@radix-ui|class-variance-authority|clsx|lucide-react|tailwind-merge|tailwindcss-animate|sonner)/.test(id)) {
-              return 'vendor-ui';
-            }
-            // Group form handling
-            if (/[\\/]node_modules[\\/](@hookform|react-hook-form|zod)/.test(id)) {
-              return 'vendor-forms';
-            }
-            // Group data and state management
-            if (/[\\/]node_modules[\\/](@tanstack|react-query|date-fns|use-debounce)/.test(id)) {
-              return 'vendor-data';
-            }
-            // Group animations and transitions
-            if (/[\\/]node_modules[\\/](framer-motion|react-intersection-observer)/.test(id)) {
-              return 'vendor-animations';
-            }
-            // Default vendor chunk
-            if (/[\\/]node_modules[\\/]/.test(id)) {
+            // Handle other dependencies
+            if (id.includes('node_modules')) {
+              // Group UI components
+              if (id.includes('@radix-ui') || id.includes('class-variance-authority') || id.includes('clsx') || id.includes('lucide-react') || id.includes('tailwind-merge') || id.includes('tailwindcss-animate') || id.includes('sonner')) {
+                return 'vendor-ui';
+              }
+              // Group form handling
+              if (id.includes('@hookform') || id.includes('react-hook-form') || id.includes('zod')) {
+                return 'vendor-forms';
+              }
+              // Group data and state management
+              if (id.includes('@tanstack') || id.includes('react-query') || id.includes('date-fns') || id.includes('use-debounce')) {
+                return 'vendor-data';
+              }
+              // Group animations and transitions
+              if (id.includes('framer-motion') || id.includes('react-intersection-observer')) {
+                return 'vendor-animations';
+              }
+              // Default vendor chunk
               return 'vendor';
             }
           },
