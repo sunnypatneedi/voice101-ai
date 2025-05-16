@@ -1,7 +1,7 @@
-
-import { defineConfig, loadEnv, splitVendorChunkPlugin } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { visualizer } from "rollup-plugin-visualizer";
+import compression from 'vite-plugin-compression';
 import path from "path";
 
 // https://vitejs.dev/config/
@@ -25,7 +25,18 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
-      splitVendorChunkPlugin(),
+      // Compression for production builds
+      isProduction && compression({
+        algorithm: 'brotliCompress',
+        ext: '.br',
+        threshold: 1024, // 1KB
+      }),
+      isProduction && compression({
+        algorithm: 'gzip',
+        ext: '.gz',
+        threshold: 1024, // 1KB
+      }),
+      // Bundle analyzer
       isProduction && visualizer({
         open: true,
         gzipSize: true,
@@ -39,16 +50,35 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      target: 'esnext',
+      minify: 'terser',
       chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
+      terserOptions: {
+        compress: {
+          drop_console: isProduction,
+          drop_debugger: isProduction,
+        },
+      },
       rollupOptions: {
         output: {
-          manualChunks: {
-            // Split vendor modules into separate chunks
-            vendor: ['react', 'react-dom', 'react-router-dom'],
-            // Group large dependencies
-            ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-slot'],
-            // Split simulator studio components
-            simulator: ['@/features/simulator-studio/**/*'],
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              // Group vendor dependencies
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+                return 'vendor-react';
+              }
+              if (id.includes('@radix-ui')) {
+                return 'vendor-ui';
+              }
+              if (id.includes('framer-motion')) {
+                return 'vendor-animations';
+              }
+              return 'vendor-other';
+            }
+            // Split simulator studio code
+            if (id.includes('/simulator-studio/')) {
+              return 'simulator-studio';
+            }
           },
         },
       },
