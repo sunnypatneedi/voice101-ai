@@ -1,11 +1,17 @@
 [build]
-  command = "npm install puppeteer@latest && npx puppeteer browsers install chrome && npm run build"
+  command = "npm install && npm run build"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
-  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "false"
-  PUPPETEER_EXECUTABLE_PATH = "/opt/buildhome/.cache/puppeteer"
+  # Disable Puppeteer's download during install
+  PUPPETEER_SKIP_DOWNLOAD = "true"
+  # Use system Chrome in Netlify's environment
+  PUPPETEER_EXECUTABLE_PATH = "/usr/bin/google-chrome-stable"
+
+# Install Chrome for Puppeteer
+[[plugins]]
+  package = "./netlify/plugins/install-chrome"
 
 # Copy public assets
 [[plugins]]
@@ -13,6 +19,10 @@
   
 [[plugins]]
   package = "netlify-purge-cloudflare-on-deploy"
+
+# Required for Chrome installation
+[build.apt]
+  packages = ["wget", "gnupg2", "google-chrome-stable"]
 
 # Handle client-side routing
 [[redirects]]

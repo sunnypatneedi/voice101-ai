@@ -12,6 +12,7 @@
     "prebuild": "npm run generate:fallback-og-image && npm run generate:og-image && npm run optimize:images && npm run generate-pwa-assets",
     "generate-pwa-assets": "node --experimental-json-modules scripts/generate-pwa-assets.mjs",
     "test": "vitest",
+    "test:puppeteer": "node scripts/test-puppeteer.js",
     "postinstall": "npm run generate-pwa-assets && npm run generate:fallback-og-image",
     "build": "vite build && cp -r public/* dist/",
     "build:dev": "vite build --mode development && cp -r public/* dist/",
