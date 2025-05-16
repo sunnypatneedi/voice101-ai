@@ -40,46 +40,62 @@ const SimulatorLoading = () => (
 
 const SimulatorStudio = () => {
   return (
-    <BookLayout title="Simulator Studio">
-      <div className="mb-8">
-        <Link to="/" className="flex items-center gap-2 text-foreground/80 hover:text-primary transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to home</span>
-        </Link>
-      </div>
-      
-      <div className="prose max-w-none">
-        <p className="text-lg text-foreground/80 mb-8">
-          Experiment with interactive Voice AI components and see them in action. 
-          Test different configurations and see real-time results.
-        </p>
-        
-        <QueryClientProvider client={queryClient}>
-          <Suspense fallback={<SimulatorLoading />}>
-            <Routes>
-              <Route index element={<Index />} />
-              <Route path="quick-talk-transcriber" element={<QuickTalkTranscriber />} />
-              <Route path="story-voice-maker" element={<StoryVoiceMaker />} />
-              <Route path="senior-care-reminder" element={<SeniorCareReminder />} />
-              <Route path="voice-assistant-tester" element={<VoiceAssistantTesterPage />} />
-              <Route path="pronunciation-coach" element={<PronunciationCoachPage />} />
-              <Route path="meeting-summarizer" element={<MeetingSummarizerPage />} />
-              <Route path="latency-tuner" element={<LatencyTunerPage />} />
-              <Route path="turn-detector" element={<TurnDetectorPage />} />
-              <Route path="speech-emotion-detector" element={<SpeechEmotionDetector />} />
-              <Route path="interruption-handler" element={<div>Interruption Handler Simulator</div>} />
-              <Route path="context-drift-simulator" element={<div>Context Drift Simulator</div>} />
-              <Route path="legacy-fallback-gate" element={<div>Legacy Fallback Gate Simulator</div>} />
-              <Route path="noise-robustness-tester" element={<div>Noise Robustness Tester</div>} />
-              <Route path="multi-speaker-mixer" element={<MultiSpeakerMixer />} />
-              <Route path="memory-recall-test" element={<MemoryRecallTest />} />
-              <Route path="voice-ai-faq" element={<VoiceAIFaqPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </QueryClientProvider>
-      </div>
-    </BookLayout>
+    <QueryClientProvider client={queryClient}>
+      <BookLayout title="Simulator Studio (Beta)">
+        <div className="container py-8">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Beta Preview</h3>
+                <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                  <p>This studio is a work in progress as we're still figuring out how to best make these use cases functional. We welcome all feedback and contributions to improve these tools.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <Link to="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+          </Link>
+          
+          <div className="prose max-w-none">
+            <p className="text-lg text-foreground/80 mb-8">
+              Experiment with interactive Voice AI components and see them in action. 
+              Test different configurations and see real-time results.
+            </p>
+            
+            <Suspense fallback={<SimulatorLoading />}>
+              <Routes>
+                <Route index element={<Index />} />
+                <Route path="quick-talk-transcriber" element={<QuickTalkTranscriber />} />
+                <Route path="story-voice-maker" element={<StoryVoiceMaker />} />
+                <Route path="senior-care-reminder" element={<SeniorCareReminder />} />
+                <Route path="voice-assistant-tester" element={<VoiceAssistantTesterPage />} />
+                <Route path="pronunciation-coach" element={<PronunciationCoachPage />} />
+                <Route path="meeting-summarizer" element={<MeetingSummarizerPage />} />
+                <Route path="latency-tuner" element={<LatencyTunerPage />} />
+                <Route path="turn-detector" element={<TurnDetectorPage />} />
+                <Route path="speech-emotion-detector" element={<SpeechEmotionDetector />} />
+                <Route path="interruption-handler" element={<div>Interruption Handler Simulator</div>} />
+                <Route path="context-drift-simulator" element={<div>Context Drift Simulator</div>} />
+                <Route path="legacy-fallback-gate" element={<div>Legacy Fallback Gate Simulator</div>} />
+                <Route path="noise-robustness-tester" element={<div>Noise Robustness Tester</div>} />
+                <Route path="multi-speaker-mixer" element={<MultiSpeakerMixer />} />
+                <Route path="memory-recall-test" element={<MemoryRecallTest />} />
+                <Route path="voice-ai-faq" element={<VoiceAIFaqPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </div>
+        </div>
+      </BookLayout>
+    </QueryClientProvider>
   );
 };
 
