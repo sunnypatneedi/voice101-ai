@@ -1,6 +1,0 @@
-# Plugin manifest for Chrome installation
-name: netlify-plugin-install-chrome
-inputs: {}
-compatibility:
-  features:
-    builds: true
