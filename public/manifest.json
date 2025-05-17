@@ -7,16 +7,45 @@
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",
+  "orientation": "any",
+  "categories": ["education", "productivity", "utilities"],
   "icons": [
     {
-      "src": "/assets/images/logo.png",
+      "src": "/assets/images/logo-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/assets/images/logo.png",
+      "src": "/assets/images/logo-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/assets/images/maskable-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/images/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/images/screenshot-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Voice101 AI - Homepage"
     }
   ]
 }
