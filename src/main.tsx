@@ -5,6 +5,19 @@ import App from './App';
 import './index.css';
 import { register } from './service-worker-registration';
 
+// Early runtime check to ensure React is available in production builds
+declare global {
+  interface Window {
+    React?: typeof React;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+  console.log('Debug: React version', (React as any).version);
+  console.log('Debug: typeof React.forwardRef', typeof (React as any).forwardRef);
+}
+
 // Simple loading component
 const LoadingFallback = () => (
   <div style={{
