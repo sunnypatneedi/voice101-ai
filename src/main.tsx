@@ -2,6 +2,9 @@
 import './utils/reactSafety';
 
 import React, { StrictMode, Suspense, useEffect } from 'react';
+// Log React details early to help diagnose loading issues
+console.log('[main] React version:', (React as any).version);
+console.log('[main] React keys:', Object.keys(React));
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';

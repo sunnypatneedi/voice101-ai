@@ -41,6 +41,15 @@ const checkReact = (): boolean => {
     errors.push('React is not available on the window object');
   }
 
+  // Log React details for troubleshooting
+  if (typeof React !== 'undefined') {
+    console.log('[ReactSafety] React version:', (React as any).version);
+    console.log('[ReactSafety] React keys:', Object.keys(React));
+  }
+  if (win.React) {
+    console.log('[ReactSafety] window.React keys:', Object.keys(win.React));
+  }
+
   // Check required exports
   if (typeof React === 'undefined') {
     errors.push('React is not defined');
