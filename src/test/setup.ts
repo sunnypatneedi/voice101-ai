@@ -1,6 +1,7 @@
-import { afterEach, vi } from 'vitest';
+import { afterEach, vi, beforeAll, afterAll } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
+import { QueryClient } from '@tanstack/react-query';
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -29,8 +30,40 @@ mockIntersectionObserver.mockReturnValue({
 });
 window.IntersectionObserver = mockIntersectionObserver;
 
+// Mock ResizeObserver
+class ResizeObserverStub {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+window.ResizeObserver = ResizeObserverStub as any;
+
+// Mock performance metrics
+window.performance = {
+  ...window.performance,
+  getEntriesByType: vi.fn().mockReturnValue([{
+    type: 'navigate',
+    startTime: 0,
+    loadEventEnd: 1000,
+    domComplete: 900,
+  }]),
+} as any;
+
 // Run cleanup after each test case
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
 });
+
+// Create a test query client
+const createTestQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      gcTime: 0, // cacheTime was renamed to gcTime in newer versions
+    },
+  },
+});
+
+// Export test utilities
+export { createTestQueryClient };
