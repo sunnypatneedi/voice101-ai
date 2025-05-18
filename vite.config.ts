@@ -72,6 +72,21 @@ export default defineConfig(({ mode }) => {
           navigateFallback: '/index.html',
           clientsClaim: true,
           skipWaiting: true,
+          // Clean up old caches
+          cleanupOutdatedCaches: true,
+          // Don't cache the service worker itself
+          maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
+          // Don't precache source maps
+          dontCacheBustURLsMatching: /\.\w{8}\./,
+          // Handle cache conflicts
+          manifestTransforms: [
+            async (manifestEntries) => {
+              const manifest = manifestEntries.filter(
+                entry => !entry.url.includes('?') && !entry.url.endsWith('.map')
+              );
+              return { manifest, warnings: [] };
+            },
+          ],
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

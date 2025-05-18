@@ -108,25 +108,45 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
-// Handle service worker updates
-useEffect(() => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then((registration) => {
-      // Listen for updates
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New update available
-              console.log('New content is available; please refresh.');
-            }
-          });
-        }
+// Custom hook for service worker updates
+const useServiceWorkerUpdates = () => {
+  React.useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        // Listen for updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New update available
+                console.log('New content is available; please refresh.');
+              }
+            });
+          }
+        });
       });
-    });
-  }
-}, []);
+    }
+  }, []);
+};
+
+// Main App Wrapper Component
+const AppWrapper = () => {
+  useServiceWorkerUpdates();
+  
+  return (
+    <StrictMode>
+      <BrowserRouter>
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingFallback />}>
+            <App />
+            <UpdateNotification />
+          </Suspense>
+        </ErrorBoundary>
+      </BrowserRouter>
+    </StrictMode>
+  );
+};
 
 // Get the root element
 const rootElement = document.getElementById('root');
@@ -138,17 +158,6 @@ if (!rootElement) {
 const root = createRoot(rootElement);
 
 // Render the app
-root.render(
-  <StrictMode>
-    <BrowserRouter>
-      <ErrorBoundary>
-        <Suspense fallback={<LoadingFallback />}>
-          <App />
-          <UpdateNotification />
-        </Suspense>
-      </ErrorBoundary>
-    </BrowserRouter>
-  </StrictMode>
-);
+root.render(<AppWrapper />);
 
 // Web vitals reporting is handled by the Vite PWA plugin
