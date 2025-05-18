@@ -25,8 +25,8 @@ export default defineConfig(({ mode }) => {
   const defineVars = {
     'process.env.NODE_ENV': JSON.stringify(mode),
     'process.env.VITE_APP_ENV': JSON.stringify(process.env.VITE_APP_ENV || 'production'),
-    'window.__REACT_DEVTOOLS_GLOBAL_HOOK__': '({ isDisabled: true })',
-    'globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__': '({ isDisabled: true })',
+    'window.__REACT_DEVTOOLS_GLOBAL_HOOK__': JSON.stringify({ isDisabled: true }),
+    'globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__': JSON.stringify({ isDisabled: true }),
   };
 
   return {

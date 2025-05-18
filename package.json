@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest",
+    "dev": "vite",
     "build": "vite build && cp -r public/* dist/",
     "build:dev": "vite build --mode development && cp -r public/* dist/",
     "lint": "eslint .",
