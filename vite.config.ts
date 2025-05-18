@@ -40,10 +40,14 @@ export default defineConfig(({ mode }) => {
       }),
       // PWA Configuration
       VitePWA({
-        registerType: 'autoUpdate',
-        // Enable auto-registration of the service worker
+        // Use our custom service worker
+        srcDir: 'public',
+        filename: 'sw.js',
+        strategies: 'injectManifest',
         injectRegister: 'auto',
+        registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+        // Custom service worker configuration is in public/sw.js
         manifest: {
           name: 'Voice101 Book',
           short_name: 'Voice101',
@@ -181,6 +185,22 @@ export default defineConfig(({ mode }) => {
                 }
               }
             },
+            // Cache images
+            {
+              urlPattern: /^https?:\/\/.*\.(png|jpg|jpeg|webp|svg|gif|ico)$/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'images-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            // Cache JSON/XML data
             {
               urlPattern: /^https?:\/\/.*\.(json|xml)$/i,
               handler: 'NetworkFirst',
