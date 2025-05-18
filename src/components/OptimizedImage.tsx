@@ -1,3 +1,4 @@
+
 import { forwardRef } from 'react';
 import type { ForwardedRef } from 'react';
 
@@ -12,9 +13,7 @@ interface OptimizedImageProps {
   [key: string]: any;
 }
 
-import React, { ForwardedRef } from 'react';
-
-const OptimizedImage = React.forwardRef(({
+const OptimizedImage = forwardRef(({
   src,
   alt,
   className = '',
@@ -57,18 +56,15 @@ const OptimizedImage = React.forwardRef(({
 
   return (
     <picture>
-      {/* WebP source */}
       <source
         srcSet={srcSet}
         type="image/webp"
         sizes="(max-width: 1024px) 100vw, 1024px"
       />
-      {/* Fallback to original format */}
       <source
         srcSet={`${basePath}?w=${Math.max(...widths)}&q=${quality}`}
         type={`image/${imgExtension}`}
       />
-      {/* Fallback img element */}
       <img
         ref={ref}
         src={defaultSrc}
@@ -81,9 +77,8 @@ const OptimizedImage = React.forwardRef(({
       />
     </picture>
   );
-};
+});
 
-const ForwardedOptimizedImage = forwardRef(OptimizedImage);
-ForwardedOptimizedImage.displayName = 'OptimizedImage';
+OptimizedImage.displayName = 'OptimizedImage';
 
-export default ForwardedOptimizedImage;
+export default OptimizedImage;
