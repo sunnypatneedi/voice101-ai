@@ -1,0 +1,102 @@
+Error:   Failed to scan for dependencies from entries:
+  /home/runner/workspace/index.html
+/home/runner/workspace/public/sim-studio/index.html
+
+  ✘ [ERROR] Expected ")" but found ";"
+
+    src/components/OptimizedImage.tsx:84:1:
+      84 │ };
+         │  ^
+         ╵  )
+
+
+    at failureErrorWithLog (/home/runner/workspace/node_modules/esbuild/lib/main.js:1463:15)
+    at /home/runner/workspace/node_modules/esbuild/lib/main.js:924:25
+    at runOnEndCallbacks (/home/runner/workspace/node_modules/esbuild/lib/main.js:1303:45)
+    at buildResponseToResult (/home/runner/workspace/node_modules/esbuild/lib/main.js:922:7)
+    at /home/runner/workspace/node_modules/esbuild/lib/main.js:934:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (/home/runner/workspace/node_modules/esbuild/lib/main.js:933:54)
+    at handleRequest (/home/runner/workspace/node_modules/esbuild/lib/main.js:626:17)
+    at handleIncomingPacket (/home/runner/workspace/node_modules/esbuild/lib/main.js:651:7)
+    at Socket.readFromStdout (/home/runner/workspace/node_modules/esbuild/lib/main.js:579:7)
+    at Socket.emit (node:events:517:28)
+    at addChunk (node:internal/streams/readable:368:12)
+    at readableAddChunk (node:internal/streams/readable:341:9)
+    at Readable.push (node:internal/streams/readable:278:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+2:56:03 AM [vite] (client) Pre-transform error: /home/runner/workspace/src/components/OptimizedImage.tsx: Identifier 'ForwardedRef' has already been declared. (15:16)
+
+  13 | }
+  14 |
+> 15 | import React, { ForwardedRef } from 'react';
+     |                 ^
+  16 |
+  17 | const OptimizedImage = React.forwardRef(({
+  18 |   src,
+  Plugin: vite:react-babel
+  File: /home/runner/workspace/src/components/OptimizedImage.tsx:15:16
+  13 |  }
+  14 |  
+  15 |  import React, { ForwardedRef } from 'react';
+     |                  ^
+  16 |  
+  17 |  const OptimizedImage = React.forwardRef(({
+2:56:03 AM [vite] Internal server error: /home/runner/workspace/src/components/OptimizedImage.tsx: Identifier 'ForwardedRef' has already been declared. (15:16)
+
+  13 | }
+  14 |
+> 15 | import React, { ForwardedRef } from 'react';
+     |                 ^
+  16 |
+  17 | const OptimizedImage = React.forwardRef(({
+  18 |   src,
+  Plugin: vite:react-babel
+  File: /home/runner/workspace/src/components/OptimizedImage.tsx:15:16
+  13 |  }
+  14 |  
+  15 |  import React, { ForwardedRef } from 'react';
+     |                  ^
+  16 |  
+  17 |  const OptimizedImage = React.forwardRef(({
+      at constructor (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:360:19)
+      at TypeScriptParserMixin.raise (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:6613:19)
+      at TypeScriptScopeHandler.declareName (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:4872:21)
+      at TypeScriptParserMixin.declareNameFromIdentifier (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:7542:16)
+      at TypeScriptParserMixin.checkIdentifier (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:7538:12)
+      at TypeScriptParserMixin.checkLVal (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:7479:12)
+      at TypeScriptParserMixin.finishImportSpecifier (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:14138:10)
+      at TypeScriptParserMixin.parseImportSpecifier (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:14295:17)
+      at TypeScriptParserMixin.parseImportSpecifier (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:10093:18)
+      at TypeScriptParserMixin.parseNamedImportSpecifiers (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:14274:36)
+      at TypeScriptParserMixin.parseImportSpecifiersAndAfter (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:14114:37)
+      at TypeScriptParserMixin.parseImport (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:14107:17)
+      at TypeScriptParserMixin.parseImport (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:9367:26)
+      at TypeScriptParserMixin.parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:12752:27)
+      at TypeScriptParserMixin.parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:9454:18)
+      at TypeScriptParserMixin.parseStatementLike (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:12644:17)
+      at TypeScriptParserMixin.parseModuleItem (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:12621:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:13192:36)
+      at TypeScriptParserMixin.parseBlockBody (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:13185:10)
+      at TypeScriptParserMixin.parseProgram (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:12514:10)
+      at TypeScriptParserMixin.parseTopLevel (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:12504:25)
+      at TypeScriptParserMixin.parse (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:14364:10)
+      at TypeScriptParserMixin.parse (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:10071:18)
+      at parse (/home/runner/workspace/node_modules/@babel/parser/lib/index.js:14398:38)
+      at parser (/home/runner/workspace/node_modules/@babel/core/lib/parser/index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (/home/runner/workspace/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (/home/runner/workspace/node_modules/@babel/core/lib/transformation/index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (/home/runner/workspace/node_modules/@babel/core/lib/transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (/home/runner/workspace/node_modules/gensync/index.js:261:32)
+      at /home/runner/workspace/node_modules/gensync/index.js:273:13
+      at async.call.result.err.err (/home/runner/workspace/node_modules/gensync/index.js:223:11)
+      at /home/runner/workspace/node_modules/gensync/index.js:189:28
+      at /home/runner/workspace/node_modules/@babel/core/lib/gensync-utils/async.js:67:7
+      at /home/runner/workspace/node_modules/gensync/index.js:113:33
+      at step (/home/runner/workspace/node_modules/gensync/index.js:287:14)
+      at /home/runner/workspace/node_modules/gensync/index.js:273:13
+      at async.call.result.err.err (/home/runner/workspace/node_modules/gensync/index.js:223:11)
