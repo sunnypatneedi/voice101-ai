@@ -68,51 +68,84 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          globPatterns: [
+            '**/*.{js,css,html,ico,png,svg,woff2}',
+            'offline.html' // Explicitly include offline page
+          ],
           navigateFallback: '/index.html',
+          navigateFallbackDenylist: [
+            // Don't use the offline page for API requests
+            /\/api\//,
+            // Don't use the offline page for file extensions
+            /\.[^/]+\.[^/]+$/
+          ],
           clientsClaim: true,
           skipWaiting: true,
           cleanupOutdatedCaches: true,
           maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
           dontCacheBustURLsMatching: /\.\w{8}\./,
           
-          // Handle cache conflicts by modifying the precache manifest
+          // Configure the offline fallback
+          offlineGoogleAnalytics: false,
+          
+          // Disable the default precache manifest generation
+          // We'll handle precaching manually in sw-custom.js
+          globDirectory: 'dist',
+          globIgnores: [
+            '**/node_modules/**/*',
+            '**/sw.js',
+            '**/workbox-*.js',
+            '**/workbox-*.js.map',
+            '**/sw-precache.js',
+            '**/sw-custom.js',
+            '**/sw-register.js'
+          ],
+          
+          // Filter the precache manifest
           manifestTransforms: [
-            async (manifestEntries) => {
-              // Create a map to track unique URLs without query parameters
-              const urlMap = new Map();
-              
-              // Process each entry and keep only one version of each URL
+            (manifestEntries) => {
+              // Filter out any entries that might cause conflicts
               const manifest = manifestEntries.filter(entry => {
-                if (entry.url.endsWith('.map')) return false; // Skip source maps
+                // Skip source maps
+                if (entry.url.endsWith('.map')) return false;
                 
-                try {
-                  // Extract base URL without query parameters
-                  const url = new URL(entry.url, 'https://voice101.ai');
-                  const baseUrl = `${url.pathname}`;
-                  
-                  // If we've seen this URL before, skip it
-                  if (urlMap.has(baseUrl)) {
-                    return false;
-                  }
-                  
-                  // Otherwise, keep this entry and track its base URL
-                  urlMap.set(baseUrl, true);
-                  return true;
-                } catch (e) {
-                  console.warn('Failed to process URL:', entry.url, e);
+                // Skip workbox files
+                if (entry.url.includes('workbox-')) return false;
+                
+                // Skip service worker files
+                if (entry.url.includes('sw.js')) return false;
+                
+                // Skip query parameters in URLs
+                if (entry.url.includes('?')) {
                   return false;
                 }
+                
+                return true;
               });
               
-              console.log('Precaching', manifest.length, 'files');
+              console.log('[Workbox] Precaching', manifest.length, 'files');
               return { manifest, warnings: [] };
-            },
+            }
           ],
           
           // Additional Workbox configuration
           mode: 'production',
+          sourcemap: false,
+          
+          // Configure runtime caching
           runtimeCaching: [
+            // Cache the offline page
+            {
+              urlPattern: /\/offline\.html/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'offline-page-cache',
+                expiration: {
+                  maxEntries: 1,
+                  maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+                },
+              },
+            },
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'CacheFirst',
