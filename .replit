@@ -1,3 +1,4 @@
+
 modules = ["nodejs-18", "web"]
 run = "npm run dev"
 
@@ -7,6 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "static"
 publicDir = "dist"
+buildCommand = "npm run build"
 
 [[deployment.rewrites]]
 from = "/*"
