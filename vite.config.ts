@@ -67,6 +67,9 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          navigateFallback: '/index.html',
+          clientsClaim: true,
+          skipWaiting: true,
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -209,16 +212,13 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "dist",
       target: 'esnext',
+      emptyOutDir: true,
       sourcemap: !isProduction,
+      manifest: true,
       minify: isProduction ? 'esbuild' : false,
       assetsInlineLimit: 4096, // 4kb
       rollupOptions: {
         output: {
-          manualChunks: {
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-slot'],
-            'utils-vendor': ['date-fns', 'zod', 'react-hook-form'],
-          },
           assetFileNames: 'assets/[name]-[hash][extname]',
           chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',
