@@ -75,6 +75,7 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "::",
       port: 8080,
+      allowedHosts: ['5f41367c-fee0-4568-a450-02fde7d7cba4-00-2ftnjs7by95wt.spock.replit.dev'],
       proxy: {
         // Proxy requests to /simulator-studio to the local dev server of the sim-studio
         '/sim-studio': {
