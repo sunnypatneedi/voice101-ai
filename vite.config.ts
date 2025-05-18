@@ -68,69 +68,36 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          globPatterns: [
-            '**/*.{js,css,html,ico,png,svg,woff2}',
-            'offline.html' // Explicitly include offline page
-          ],
-          navigateFallback: '/index.html',
-          navigateFallbackDenylist: [
-            // Don't use the offline page for API requests
-            /\/api\//,
-            // Don't use the offline page for file extensions
-            /\.[^/]+\.[^/]+$/
-          ],
-          clientsClaim: true,
-          skipWaiting: true,
-          cleanupOutdatedCaches: true,
-          maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
-          dontCacheBustURLsMatching: /\.\w{8}\./,
-          
-          // Configure the offline fallback
-          offlineGoogleAnalytics: false,
-          
           // Disable the default precache manifest generation
           // We'll handle precaching manually in sw-custom.js
-          globDirectory: 'dist',
-          globIgnores: [
-            '**/node_modules/**/*',
-            '**/sw.js',
-            '**/workbox-*.js',
-            '**/workbox-*.js.map',
-            '**/sw-precache.js',
-            '**/sw-custom.js',
-            '**/sw-register.js'
-          ],
+          globPatterns: [],
           
-          // Filter the precache manifest
+          // Enable cleanup of outdated caches
+          cleanupOutdatedCaches: true,
+          
+          // Skip waiting and claim clients
+          skipWaiting: true,
+          clientsClaim: true,
+          
+          // Don't cache bust URLs with hashes
+          dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
+          
+          // Maximum file size to cache in bytes (10MB)
+          maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+          
+          // Disable source maps in production
+          sourcemap: false,
+          
+          // Disable workbox logs in production
+          mode: 'production',
+          
+          // Disable the default precache manifest
           manifestTransforms: [
             (manifestEntries) => {
-              // Filter out any entries that might cause conflicts
-              const manifest = manifestEntries.filter(entry => {
-                // Skip source maps
-                if (entry.url.endsWith('.map')) return false;
-                
-                // Skip workbox files
-                if (entry.url.includes('workbox-')) return false;
-                
-                // Skip service worker files
-                if (entry.url.includes('sw.js')) return false;
-                
-                // Skip query parameters in URLs
-                if (entry.url.includes('?')) {
-                  return false;
-                }
-                
-                return true;
-              });
-              
-              console.log('[Workbox] Precaching', manifest.length, 'files');
-              return { manifest, warnings: [] };
+              // Return an empty manifest to prevent precaching
+              return { manifest: [], warnings: [] };
             }
           ],
-          
-          // Additional Workbox configuration
-          mode: 'production',
-          sourcemap: false,
           
           // Configure runtime caching
           runtimeCaching: [
@@ -139,49 +106,61 @@ export default defineConfig(({ mode }) => {
               urlPattern: /\/offline\.html/,
               handler: 'CacheFirst',
               options: {
-                cacheName: 'offline-page-cache',
+                cacheName: 'offline-page',
                 expiration: {
                   maxEntries: 1,
                   maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
                 },
               },
             },
+            // Cache static assets
             {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            },
-            {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'gstatic-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            },
-            {
-              urlPattern: /^https?:\/\/.*\.(png|jpg|jpeg|webp|svg|gif|ico)$/i,
+              urlPattern: /\.(?:js|css|json|html)$/i,
               handler: 'StaleWhileRevalidate',
               options: {
-                cacheName: 'images-cache',
+                cacheName: 'static-assets',
+                expiration: {
+                  maxEntries: 60,
+                  maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                },
+              },
+            },
+            // Cache images
+            {
+              urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'images',
                 expiration: {
                   maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                  maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                },
+              },
+            },
+            // Cache Google Fonts (CSS)
+            {
+              urlPattern: /^https?:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'google-fonts',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              },
+            },
+            // Cache Google Fonts (static files)
+            {
+              urlPattern: /^https?:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-static',
+                expiration: {
+                  maxEntries: 30,
+                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
                 },
                 cacheableResponse: {
                   statuses: [0, 200]

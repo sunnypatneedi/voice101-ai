@@ -1,8 +1,9 @@
-import React, { StrictMode, Suspense, useEffect } from 'react';
+import React, { StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import UpdateNotification from './components/UpdateNotification';
+import { useServiceWorker } from './hooks/useServiceWorker';
 import './index.css';
 
 // Simple loading component
@@ -108,45 +109,26 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
-// Service Worker Update Component
-const ServiceWorkerUpdater = () => {
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then((registration) => {
-        // Listen for updates
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('New content is available; please refresh.');
-              }
-            });
-          }
-        });
-      });
-    }
-  }, []);
-  
-  return null; // This component doesn't render anything
-};
-
 // Main App Wrapper Component
-const AppContent = () => (
-  <BrowserRouter>
-    <ErrorBoundary>
-      <Suspense fallback={<LoadingFallback />}>
-        <App />
-        <UpdateNotification />
-      </Suspense>
-    </ErrorBoundary>
-  </BrowserRouter>
-);
+const AppContent = () => {
+  // Initialize service worker
+  useServiceWorker();
+  
+  return (
+    <BrowserRouter>
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingFallback />}>
+          <App />
+          <UpdateNotification />
+        </Suspense>
+      </ErrorBoundary>
+    </BrowserRouter>
+  );
+};
 
 // Root Component
 const Root = () => (
   <StrictMode>
-    <ServiceWorkerUpdater />
     <AppContent />
   </StrictMode>
 );
