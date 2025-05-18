@@ -1,31 +1,22 @@
-
-import { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { useHotkeys } from 'react-hotkeys-hook';
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { CommandPalette } from '@/components/CommandPalette';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/use-toast';
 
-// Lazy load pages
-const Index = lazy(() => import('./pages/Index'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-const FoundationalTerms = lazy(() => import('./pages/FoundationalTerms'));
-const AdvancedConcepts = lazy(() => import('./pages/AdvancedConcepts'));
-const TermDetail = lazy(() => import('./pages/TermDetail'));
-const FAQ = lazy(() => import('./pages/FAQ'));
-const SimulatorStudio = lazy(() => import('./pages/SimulatorStudio'));
-
-// Loading component for Suspense fallback
-const LoadingSpinner = ({ className = "" }) => (
-  <div className={`flex items-center justify-center min-h-[200px] ${className}`}>
-    <Skeleton className="h-8 w-8 rounded-full" />
-  </div>
-);
+// Type declarations
+declare global {
+  interface Window {
+    __REACT_DEVTOOLS_GLOBAL_HOOK__?: any;
+  }
+}
 
 // Configure query client with default options
 const queryClient = new QueryClient({
@@ -38,6 +29,43 @@ const queryClient = new QueryClient({
   },
 });
 
+// Error boundary for lazy-loaded components
+const withSuspense = (Component: React.ComponentType) => (props: any) => (
+  <ErrorBoundary 
+    fallback={
+      <div className="p-4">
+        <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Reload Page
+        </button>
+      </div>
+    }
+  >
+    <Suspense fallback={<LoadingSpinner className="min-h-screen" />}>
+      <Component {...props} />
+    </Suspense>
+  </ErrorBoundary>
+);
+
+// Lazy load pages with error boundaries
+const Index = withSuspense(lazy(() => import('./pages/Index')));
+const NotFound = withSuspense(lazy(() => import('./pages/NotFound')));
+const FoundationalTerms = withSuspense(lazy(() => import('./pages/FoundationalTerms')));
+const AdvancedConcepts = withSuspense(lazy(() => import('./pages/AdvancedConcepts')));
+const TermDetail = withSuspense(lazy(() => import('./pages/TermDetail')));
+const FAQ = withSuspense(lazy(() => import('./pages/FAQ')));
+const SimulatorStudio = withSuspense(lazy(() => import('./pages/SimulatorStudio')));
+
+// Loading component for Suspense fallback
+const LoadingSpinner = ({ className = "" }: { className?: string }) => (
+  <div className={`flex items-center justify-center min-h-[200px] ${className}`}>
+    <Skeleton className="h-8 w-8 rounded-full" />
+  </div>
+);
+
 // Component to handle route changes and scroll to top
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -49,9 +77,41 @@ const ScrollToTop = () => {
   return null;
 };
 
-const App = () => {
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+// Main App component with error boundary and routing
+const App: React.FC = () => {
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  // Handle global errors
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error('Global error caught:', event.error);
+      toast({
+        title: 'An error occurred',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
+    };
 
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      toast({
+        title: 'An error occurred',
+        description: event.reason?.message || 'Something went wrong with an asynchronous operation.',
+        variant: 'destructive',
+      });
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleRejection);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleRejection);
+    };
+  }, [toast]);
+  
   // Register command palette shortcut
   useHotkeys('ctrl+k, cmd+k', (e) => {
     e.preventDefault();
@@ -59,32 +119,67 @@ const App = () => {
   }, { enableOnFormTags: true });
 
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
-            <BrowserRouter>
-              <ScrollToTop />
-              <Suspense fallback={<LoadingSpinner className="min-h-screen" />}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/foundational-terms" element={<FoundationalTerms />} />
-                  <Route path="/advanced-concepts" element={<AdvancedConcepts />} />
-                  <Route path="/term/:id" element={<TermDetail />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="/simulator-studio" element={<SimulatorStudio />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </BrowserRouter>
-          </TooltipProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
+          <BrowserRouter>
+            <ScrollToTop />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/foundational-terms" element={<FoundationalTerms />} />
+              <Route path="/advanced-concepts" element={<AdvancedConcepts />} />
+              <Route path="/term/:id" element={<TermDetail />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route 
+                path="/simulator-studio/*" 
+                element={
+                  <ErrorBoundary 
+                    onError={(error: Error) => {
+                      console.error('Error in SimulatorStudio:', error);
+                      toast({
+                        title: 'Failed to load Simulator Studio',
+                        description: 'Please try again or contact support if the problem persists.',
+                        variant: 'destructive',
+                      });
+                      return <Navigate to="/" replace />;
+                    }}
+                  >
+                    <SimulatorStudio />
+                  </ErrorBoundary>
+                } 
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
-export default App;
+// Wrapper component to provide error boundary at the top level
+const AppWithErrorBoundary: React.FC = () => (
+  <ErrorBoundary 
+    fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md p-6 bg-white rounded-lg shadow-md">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
+          <p className="mb-4">We're sorry, but an unexpected error occurred.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            Reload Application
+          </button>
+        </div>
+      </div>
+    }
+  >
+    <App />
+  </ErrorBoundary>
+);
+
+export default AppWithErrorBoundary;
