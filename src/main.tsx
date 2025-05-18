@@ -2,11 +2,14 @@ import React, { StrictMode, Suspense, useEffect } from "react";
 import { React as SafetyReact } from "./utils/reactSafety";
 
 // Ensure React is properly initialized
-if (typeof window !== 'undefined' && !window.React) {
+if (typeof window !== "undefined" && !window.React) {
   window.React = React;
 }
-// Debug: log React version and forwardRef availability
-console.info("[main] React version:", (React as any).version);
+
+// Log React details early to help diagnose loading issues
+console.log("[main] React version:", (React as any).version);
+console.log("[main] React keys:", Object.keys(React));
+// Debug: log forwardRef availability
 console.info("[main] forwardRef type:", typeof (React as any).forwardRef);
 
 import { createRoot } from "react-dom/client";
