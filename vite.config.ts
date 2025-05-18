@@ -41,6 +41,8 @@ export default defineConfig(({ mode }) => {
       // PWA Configuration
       VitePWA({
         registerType: 'autoUpdate',
+        // Enable auto-registration of the service worker
+        injectRegister: 'auto',
         includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
         manifest: {
           name: 'Voice101 Book',
@@ -154,7 +156,7 @@ export default defineConfig(({ mode }) => {
           ]
         },
         devOptions: {
-          enabled: false,
+          enabled: false, // Disable in development
           type: 'module',
           navigateFallback: 'index.html',
         },

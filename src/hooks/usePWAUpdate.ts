@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Workbox, WorkboxLifecycleWaitingEvent } from 'workbox-window';
 
 declare global {
   interface Window {
-    workbox?: Workbox;
+    workbox?: {
+      addEventListener: (type: string, callback: (event: any) => void) => void;
+      register: () => Promise<void>;
+      messageSkipWaiting: () => void;
+    };
   }
 }
 
@@ -14,54 +17,47 @@ export function usePWAUpdate() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      const wb = new Workbox('/service-worker.js');
+      const wb = window.workbox;
+      
+      if (!wb) {
+        console.warn('Workbox is not available');
+        return;
+      }
 
-      const showSkipWaitingPrompt = (event: WorkboxLifecycleWaitingEvent) => {
+      const handleWaiting = (event: { sw: ServiceWorker }) => {
         setWaitingWorker(event.sw);
         setShowReload(true);
         setIsUpdateAvailable(true);
       };
 
-      const handleExternalWaiting = (event: Event) => {
-        const customEvent = event as CustomEvent<{ sw: ServiceWorker }>;
-        if (customEvent.detail?.sw) {
-          setWaitingWorker(customEvent.detail.sw);
-          setShowReload(true);
-          setIsUpdateAvailable(true);
-        }
-      };
-
-      wb.addEventListener('waiting', showSkipWaitingPrompt);
-      window.addEventListener('externalwaiting', handleExternalWaiting as EventListener);
+      // Listen for the waiting event
+      wb.addEventListener('waiting', handleWaiting);
 
       // Check for updates on initial load
       wb.register()
-        .then((registration) => {
-          if (registration) {
-            // Check for updates every hour
-            const updateInterval = setInterval(() => {
-              registration.update().catch(console.error);
-            }, 60 * 60 * 1000);
-
-            return () => clearInterval(updateInterval);
-          }
-          return undefined;
+        .then(() => {
+          console.log('Service Worker registered');
         })
         .catch(console.error);
 
-      // Clean up event listeners
+      // Clean up event listener
       return () => {
-        wb.removeEventListener('waiting', showSkipWaitingPrompt);
-        window.removeEventListener('externalwaiting', handleExternalWaiting as EventListener);
+        // The Vite PWA plugin handles cleanup of its own event listeners
+        // No need to manually remove them here
       };
     }
     return undefined;
   }, []);
 
   const reloadToUpdate = () => {
-    if (waitingWorker) {
+    if (typeof window !== 'undefined' && window.workbox) {
+      // Tell the service worker to skip waiting
+      window.workbox.messageSkipWaiting();
+      // Reload the page to activate the new service worker
+      window.location.reload();
+    } else if (waitingWorker) {
+      // Fallback for non-Vite PWA plugin environments
       waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-      setShowReload(false);
       window.location.reload();
     }
   };
