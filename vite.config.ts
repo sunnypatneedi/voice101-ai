@@ -7,17 +7,37 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from "path";
 
 // https://vitejs.dev/config/
+// Ensure React is always available as a global
+const reactAlias = {
+  'react': path.resolve('./node_modules/react'),
+  'react-dom': path.resolve('./node_modules/react-dom'),
+  'react/jsx-runtime': path.resolve('./node_modules/react/jsx-runtime.js'),
+};
+
 export default defineConfig(({ mode }) => {
   const isProduction = mode === 'production';
   const isDevelopment = !isProduction;
+  
+  // Ensure React is always included in the bundle
+  const alwaysInclude = ['react', 'react-dom', 'react/jsx-runtime'];
+  
+  // Add global variables to ensure React is available
+  const defineVars = {
+    'process.env.NODE_ENV': JSON.stringify(mode),
+    'process.env.VITE_APP_ENV': JSON.stringify(process.env.VITE_APP_ENV || 'production'),
+    'window.__REACT_DEVTOOLS_GLOBAL_HOOK__': '({ isDisabled: true })',
+    'globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__': '({ isDisabled: true })',
+  };
 
   return {
-    define: {
-      'process.env.NODE_ENV': JSON.stringify(mode),
-      'process.env.VITE_APP_ENV': JSON.stringify(process.env.VITE_APP_ENV || 'production'),
-    },
+    define: defineVars,
     resolve: {
       alias: [
+        // React aliases first to ensure correct resolution
+        ...Object.entries(reactAlias).map(([find, replacement]) => ({
+          find,
+          replacement,
+        })),
         // Alias for src directory
         {
           find: '@',
@@ -33,10 +53,23 @@ export default defineConfig(({ mode }) => {
       preserveSymlinks: true,
     },
     optimizeDeps: {
-      include: ['react', 'react-dom'],
+      include: [...alwaysInclude, 'react/jsx-runtime'],
       esbuildOptions: {
         jsx: 'automatic',
+        // Ensure React is treated as a pure module
+        define: {
+          'process.env.NODE_ENV': JSON.stringify(mode),
+        },
+        // Preserve React's named exports
+        keepNames: true,
       },
+      // Force optimize these deps (they won't be externalized)
+      force: true,
+    },
+    
+    // Ensure React is not externalized
+    ssr: {
+      noExternal: [...alwaysInclude],
     },
     // Server configuration
     server: {
@@ -220,14 +253,19 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules')) {
               return 'vendor';
             }
-            
             return null;
           },
           // Configure chunk optimization
           experimentalMinChunkSize: 20000, // Increased for better chunking
           // Ensure consistent chunk names
           entryFileNames: 'assets/[name]-[hash].js',
-          chunkFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: (chunkInfo) => {
+            // Ensure React and its dependencies are in stable chunks
+            if (chunkInfo.name === 'react-vendor') {
+              return 'assets/react-vendor.[hash].js';
+            }
+            return 'assets/[name]-[hash].js';
+          },
           assetFileNames: 'assets/[name]-[hash][extname]',
         },
         // Configure tree-shaking

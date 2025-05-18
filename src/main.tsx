@@ -1,8 +1,12 @@
+// Import React safety check first
+import './utils/reactSafety';
+
 import React, { StrictMode, Suspense, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { register } from './service-worker-registration';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Import web-vitals to monitor Core Web Vitals metrics
 import { onCLS, onFID, onLCP } from 'web-vitals/attribution';
@@ -117,87 +121,6 @@ const LoadingFallback = () => (
   </div>
 );
 
-// Error boundary for the root component
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    // Update state so the next render will show the fallback UI
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log the error to an error reporting service
-    console.error('Error caught by error boundary:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return (
-        <div style={{
-          padding: '2rem',
-          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-          maxWidth: '800px',
-          margin: '0 auto',
-        }}>
-          <h1 style={{ color: '#dc2626' }}>Something went wrong</h1>
-          <p style={{ margin: '1rem 0' }}>
-            We're sorry, but an unexpected error occurred. Please try refreshing the page.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.25rem',
-              cursor: 'pointer',
-              marginRight: '0.5rem',
-            }}
-          >
-            Refresh Page
-          </button>
-          {this.state.error && (
-            <details style={{
-              marginTop: '1.5rem',
-              padding: '1rem',
-              backgroundColor: '#fef2f2',
-              border: '1px solid #fecaca',
-              borderRadius: '0.375rem',
-              color: '#991b1b',
-              fontFamily: 'monospace',
-              fontSize: '0.875rem',
-              textAlign: 'left',
-              overflowX: 'auto',
-            }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600' }}>Error Details</summary>
-              <div style={{ marginTop: '0.5rem' }}>{this.state.error.message}</div>
-              {this.state.error.stack && (
-                <pre style={{
-                  marginTop: '0.5rem',
-                  color: '#7f1d1d',
-                  whiteSpace: 'pre-wrap',
-                  fontSize: '0.8em',
-                  overflowX: 'auto',
-                }}>
-                  {this.state.error.stack}
-                </pre>
-              )}
-            </details>
-          )}
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
 // Get the root element
 const rootElement = document.getElementById('root');
 
@@ -205,16 +128,14 @@ if (!rootElement) {
   throw new Error('Failed to find the root element');
 }
 
-// Create root
+// Create a root
 const root = createRoot(rootElement);
 
-// Register service worker
+// Define the onUpdate callback for service worker
 const onUpdate = (registration: ServiceWorkerRegistration) => {
-  const waitingServiceWorker = registration.waiting;
-  if (waitingServiceWorker) {
-    waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
-    window.location.reload();
-  }
+  console.log('Service worker updated');
+  // You can add logic here to prompt the user to update the app
+  // For example, show a toast notification with a refresh button
 };
 
 // Register service worker in production
