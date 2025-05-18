@@ -5,7 +5,7 @@
  * It should be imported as the first thing in your main entry file.
  */
 
-import React from "react";
+import * as React from "react";
 
 // Make React available globally
 if (typeof window !== 'undefined') {

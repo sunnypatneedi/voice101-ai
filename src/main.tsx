@@ -1,5 +1,5 @@
-import React, { StrictMode, Suspense, useEffect } from "react";
-import { React as SafetyReact } from "./utils/reactSafety";
+import * as React from "react";
+import { StrictMode, Suspense, useEffect } from "react";
 
 // Ensure React is properly initialized
 if (typeof window !== "undefined" && !window.React) {
