@@ -82,7 +82,7 @@ if (typeof window !== 'undefined') {
         }, 3000); // Delay reporting to prioritize initial rendering
       }
     }
-    
+
     // Load font CSS asynchronously after initial render is complete
     scheduleIdle(() => {
       loadNonCriticalCSS('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap');

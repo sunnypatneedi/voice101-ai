@@ -12,7 +12,9 @@ interface OptimizedImageProps {
   [key: string]: any;
 }
 
-const OptimizedImage = ({
+import React, { ForwardedRef } from 'react';
+
+const OptimizedImage = React.forwardRef(({
   src,
   alt,
   className = '',

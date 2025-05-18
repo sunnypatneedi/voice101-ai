@@ -2,6 +2,9 @@ import { afterEach, vi, beforeAll, afterAll } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { QueryClient } from '@tanstack/react-query';
+import { expect, afterEach } from 'vitest'
+import * as React from 'react'
+global.React = React
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
