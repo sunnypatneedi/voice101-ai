@@ -7,6 +7,14 @@
 
 import React from "react";
 
+// Make React available globally
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+}
+
+// Export React to ensure it's included in the bundle
+export { React };
+
 // Extend Window interface to include React and devtools
 interface ExtendedWindow extends Window {
   React: typeof React;

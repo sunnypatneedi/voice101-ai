@@ -1,7 +1,10 @@
-// Import React safety check first
-import "./utils/reactSafety";
-
 import React, { StrictMode, Suspense, useEffect } from "react";
+import { React as SafetyReact } from "./utils/reactSafety";
+
+// Ensure React is properly initialized
+if (typeof window !== 'undefined' && !window.React) {
+  window.React = React;
+}
 // Debug: log React version and forwardRef availability
 console.info("[main] React version:", (React as any).version);
 console.info("[main] forwardRef type:", typeof (React as any).forwardRef);
