@@ -5,6 +5,13 @@ import App from './App';
 import './index.css';
 import { register } from './service-worker-registration';
 
+// Early runtime check to validate React availability in production builds
+if (typeof window !== 'undefined') {
+  console.log('Debug: React version', (React as any).version);
+  console.log('Debug: typeof React.forwardRef', typeof (React as any).forwardRef);
+  console.log('Debug: existing window.React', (window as any).React);
+}
+
 // Simple loading component
 const LoadingFallback = () => (
   <div style={{

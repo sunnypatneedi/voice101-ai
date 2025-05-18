@@ -73,6 +73,9 @@
       // Global error handler
       window.addEventListener('error', function(event) {
         console.error('Global error:', event.error);
+        console.log('Debug: window.React availability', (window as any).React);
+        console.log('Debug: userAgent', navigator.userAgent);
+        console.log('Debug: location', window.location.href);
         const root = document.getElementById('root');
         if (root) {
           try {
