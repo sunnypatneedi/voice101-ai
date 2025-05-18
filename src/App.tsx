@@ -77,11 +77,11 @@ const ScrollToTop = () => {
   return null;
 };
 
-// Main App component with error boundary and routing
+// Main App component with routing and global error handling
 const App: React.FC = () => {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState<boolean>(false);
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Handle global errors
   useEffect(() => {
@@ -125,35 +125,33 @@ const App: React.FC = () => {
           <Toaster />
           <Sonner />
           <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
-          <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/foundational-terms" element={<FoundationalTerms />} />
-              <Route path="/advanced-concepts" element={<AdvancedConcepts />} />
-              <Route path="/term/:id" element={<TermDetail />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route 
-                path="/simulator-studio/*" 
-                element={
-                  <ErrorBoundary 
-                    onError={(error: Error) => {
-                      console.error('Error in SimulatorStudio:', error);
-                      toast({
-                        title: 'Failed to load Simulator Studio',
-                        description: 'Please try again or contact support if the problem persists.',
-                        variant: 'destructive',
-                      });
-                      return <Navigate to="/" replace />;
-                    }}
-                  >
-                    <SimulatorStudio />
-                  </ErrorBoundary>
-                } 
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/foundational-terms" element={<FoundationalTerms />} />
+            <Route path="/advanced-concepts" element={<AdvancedConcepts />} />
+            <Route path="/term/:id" element={<TermDetail />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route 
+              path="/simulator-studio/*" 
+              element={
+                <ErrorBoundary 
+                  onError={(error: Error) => {
+                    console.error('Error in SimulatorStudio:', error);
+                    toast({
+                      title: 'Failed to load Simulator Studio',
+                      description: 'Please try again or contact support if the problem persists.',
+                      variant: 'destructive',
+                    });
+                    return <Navigate to="/" replace />;
+                  }}
+                >
+                  <SimulatorStudio />
+                </ErrorBoundary>
+              } 
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

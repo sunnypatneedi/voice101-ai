@@ -1,5 +1,6 @@
 import React, { StrictMode, Suspense, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import UpdateNotification from './components/UpdateNotification';
 import './index.css';
@@ -107,39 +108,25 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
-// Root component
-const Root = () => {
-  // Handle service worker updates
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then((registration) => {
-        // Listen for updates
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New update available
-                console.log('New content is available; please refresh.');
-              }
-            });
-          }
-        });
+// Handle service worker updates
+useEffect(() => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then((registration) => {
+      // Listen for updates
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New update available
+              console.log('New content is available; please refresh.');
+            }
+          });
+        }
       });
-    }
-  }, []);
-
-  return (
-    <StrictMode>
-      <ErrorBoundary>
-        <Suspense fallback={<LoadingFallback />}>
-          <App />
-          <UpdateNotification />
-        </Suspense>
-      </ErrorBoundary>
-    </StrictMode>
-  );
-};
+    });
+  }
+}, []);
 
 // Get the root element
 const rootElement = document.getElementById('root');
@@ -153,12 +140,14 @@ const root = createRoot(rootElement);
 // Render the app
 root.render(
   <StrictMode>
-    <ErrorBoundary>
-      <Suspense fallback={<LoadingFallback />}>
-        <Root />
-        <UpdateNotification />
-      </Suspense>
-    </ErrorBoundary>
+    <BrowserRouter>
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingFallback />}>
+          <App />
+          <UpdateNotification />
+        </Suspense>
+      </ErrorBoundary>
+    </BrowserRouter>
   </StrictMode>
 );
 
