@@ -1,0 +1,63 @@
+[build]
+  command = "npm install --include=optional && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+  # Enable corepack for better package management
+  ENABLE_NEXTJS_PACKAGE_IMPORTS = "1"
+  # Force npm to rebuild native addons
+  NPM_FLAGS = "--build-from-source"
+
+# Plugins
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+
+# Handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Proxy sim-studio requests
+[[redirects]]
+  from = "/sim-studio/*"
+  to = "/sim-studio/index.html"
+  status = 200
+
+# Ensure sim-studio assets are served with correct MIME types
+[[headers]]
+  for = "/sim-studio/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Set proper MIME types
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Content-Type = "text/javascript"
+
+[[headers]]
+  for = "/*.mjs"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+
+# MIME types for CSS files
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Content-Type = "text/css; charset=utf-8"
+
+# MIME types for JSON files
+[[headers]]
+  for = "/*.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+
+[dev]
+  command = "npm run dev"
+  port = 8080
+  framework = "#custom"

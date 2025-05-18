@@ -1,0 +1,32 @@
+documentation:
+  - README.md
+  - '**/*.md'
+  - docs/**/*
+
+ui:
+  - src/components/**/*
+  - src/**/*.css
+  - src/App.css
+  - src/index.css
+
+pages:
+  - src/pages/**/*
+
+data:
+  - src/data/**/*
+
+hooks:
+  - src/hooks/**/*
+
+config:
+  - '*.config.js'
+  - '*.config.ts'
+  - tsconfig*.json
+  - .github/**/*
+  - package.json
+  - package-lock.json
+
+dependencies:
+  - package.json
+  - package-lock.json
+  - bun.lockb
