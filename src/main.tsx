@@ -1,5 +1,4 @@
 import * as React from "react";
-import { StrictMode, Suspense, useEffect } from "react";
 
 // Ensure React is properly initialized
 if (typeof window !== "undefined" && !window.React) {
@@ -177,13 +176,13 @@ if (process.env.NODE_ENV === "production") {
 
 // Render the app
 root.render(
-  <StrictMode>
+  <React.StrictMode>
     <ErrorBoundary>
-      <Suspense fallback={<LoadingFallback />}>
+      <React.Suspense fallback={<LoadingFallback />}>
         <App />
-      </Suspense>
+      </React.Suspense>
     </ErrorBoundary>
-  </StrictMode>,
+  </React.StrictMode>,
 );
 
 // Report web vitals (optional)
