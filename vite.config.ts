@@ -72,21 +72,46 @@ export default defineConfig(({ mode }) => {
           navigateFallback: '/index.html',
           clientsClaim: true,
           skipWaiting: true,
-          // Clean up old caches
           cleanupOutdatedCaches: true,
-          // Don't cache the service worker itself
           maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
-          // Don't precache source maps
           dontCacheBustURLsMatching: /\.\w{8}\./,
-          // Handle cache conflicts
+          
+          // Handle cache conflicts by modifying the precache manifest
           manifestTransforms: [
             async (manifestEntries) => {
-              const manifest = manifestEntries.filter(
-                entry => !entry.url.includes('?') && !entry.url.endsWith('.map')
-              );
+              // Create a map to track unique URLs without query parameters
+              const urlMap = new Map();
+              
+              // Process each entry and keep only one version of each URL
+              const manifest = manifestEntries.filter(entry => {
+                if (entry.url.endsWith('.map')) return false; // Skip source maps
+                
+                try {
+                  // Extract base URL without query parameters
+                  const url = new URL(entry.url, 'https://voice101.ai');
+                  const baseUrl = `${url.pathname}`;
+                  
+                  // If we've seen this URL before, skip it
+                  if (urlMap.has(baseUrl)) {
+                    return false;
+                  }
+                  
+                  // Otherwise, keep this entry and track its base URL
+                  urlMap.set(baseUrl, true);
+                  return true;
+                } catch (e) {
+                  console.warn('Failed to process URL:', entry.url, e);
+                  return false;
+                }
+              });
+              
+              console.log('Precaching', manifest.length, 'files');
               return { manifest, warnings: [] };
             },
           ],
+          
+          // Additional Workbox configuration
+          mode: 'production',
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

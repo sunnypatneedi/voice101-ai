@@ -108,9 +108,9 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
-// Custom hook for service worker updates
-const useServiceWorkerUpdates = () => {
-  React.useEffect(() => {
+// Service Worker Update Component
+const ServiceWorkerUpdater = () => {
+  useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
         // Listen for updates
@@ -119,7 +119,6 @@ const useServiceWorkerUpdates = () => {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New update available
                 console.log('New content is available; please refresh.');
               }
             });
@@ -128,25 +127,29 @@ const useServiceWorkerUpdates = () => {
       });
     }
   }, []);
+  
+  return null; // This component doesn't render anything
 };
 
 // Main App Wrapper Component
-const AppWrapper = () => {
-  useServiceWorkerUpdates();
-  
-  return (
-    <StrictMode>
-      <BrowserRouter>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingFallback />}>
-            <App />
-            <UpdateNotification />
-          </Suspense>
-        </ErrorBoundary>
-      </BrowserRouter>
-    </StrictMode>
-  );
-};
+const AppContent = () => (
+  <BrowserRouter>
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <App />
+        <UpdateNotification />
+      </Suspense>
+    </ErrorBoundary>
+  </BrowserRouter>
+);
+
+// Root Component
+const Root = () => (
+  <StrictMode>
+    <ServiceWorkerUpdater />
+    <AppContent />
+  </StrictMode>
+);
 
 // Get the root element
 const rootElement = document.getElementById('root');
@@ -155,9 +158,8 @@ if (!rootElement) {
   throw new Error('Failed to find the root element');
 }
 
+// Create and render the root
 const root = createRoot(rootElement);
-
-// Render the app
-root.render(<AppWrapper />);
+root.render(<Root />);
 
 // Web vitals reporting is handled by the Vite PWA plugin
