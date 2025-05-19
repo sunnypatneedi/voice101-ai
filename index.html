@@ -36,6 +36,32 @@
     <!-- PWA support -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#0d1117" />
+    
+    <!-- React version check -->
+    <script>
+      // Store the original console methods
+      const originalConsoleLog = console.log;
+      const originalConsoleError = console.error;
+      
+      // Override console.log to capture React version info
+      console.log = function() {
+        if (arguments[0] && arguments[0].includes && 
+            (arguments[0].includes('React') || arguments[0].includes('react'))) {
+          originalConsoleLog.apply(console, ['[React Version Check]', ...arguments]);
+        }
+        originalConsoleLog.apply(console, arguments);
+      };
+      
+      // Override console.error to capture React-related errors
+      console.error = function() {
+        if (arguments[0] && arguments[0].includes && 
+            (arguments[0].includes('React') || arguments[0].includes('react'))) {
+          originalConsoleError.apply(console, ['[React Error]', ...arguments]);
+        } else {
+          originalConsoleError.apply(console, arguments);
+        }
+      };
+    </script>
   </head>
 
   <body>
@@ -50,7 +76,23 @@
     </div>
     
     <!-- Load the application -->
+    <!-- Load React version check after React is loaded but before the app -->
+    <script type="module" src="/checkReactVersions.js"></script>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Add a small delay to check for React after everything loads -->
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          console.log('[React Version Check] Delayed check after page load');
+          if (window.React) {
+            console.log('React version found after load:', window.React.version);
+          } else {
+            console.warn('No React found in window object after load');
+          }
+        }, 1000);
+      });
+    </script>
     
     <!-- Error handler and polyfills -->
     <script>

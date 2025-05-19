@@ -1,4 +1,18 @@
-import React, { StrictMode, Suspense } from 'react';
+import React, { StrictMode, Suspense, useEffect } from 'react';
+
+// Diagnostic logging
+console.log('[DIAGNOSTIC] React version:', React.version);
+console.log('[DIAGNOSTIC] React instance:', React);
+console.log('[DIAGNOSTIC] React.useEffect:', React.useEffect);
+
+// Debug component to track React in component context
+const ReactDebug = () => {
+  useEffect(() => {
+    console.log('[DIAGNOSTIC] React version in component:', React.version);
+    console.log('[DIAGNOSTIC] React.useEffect in component:', React.useEffect);
+  }, []);
+  return null;
+};
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
@@ -111,18 +125,21 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 
 // Main App Wrapper Component
 const AppContent = () => {
-  // Initialize service worker
-  useServiceWorker();
+  console.log('[DIAGNOSTIC] AppContent rendering');
+  const { updateAvailable } = useServiceWorker();
   
   return (
-    <BrowserRouter>
-      <ErrorBoundary>
-        <Suspense fallback={<LoadingFallback />}>
-          <App />
-          <UpdateNotification />
-        </Suspense>
-      </ErrorBoundary>
-    </BrowserRouter>
+    <>
+      <ReactDebug />
+      <BrowserRouter>
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingFallback />}>
+            <App />
+            {updateAvailable && <UpdateNotification />}
+          </Suspense>
+        </ErrorBoundary>
+      </BrowserRouter>
+    </>
   );
 };
 

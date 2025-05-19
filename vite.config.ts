@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
   return {
     define: {
       __APP_VERSION__: JSON.stringify(packageJson.version),
+      'process.env.NODE_ENV': JSON.stringify(mode),
     },
     server: {
       host: "::",
@@ -40,36 +41,130 @@ export default defineConfig(({ mode }) => {
       }),
       // PWA Configuration
       VitePWA({
-        // Use our custom service worker
-        srcDir: 'public',
-        filename: 'sw.js',
+        // Use injectManifest strategy to use our custom service worker
         strategies: 'injectManifest',
         injectRegister: 'auto',
-        registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
-        // Custom service worker configuration is in public/sw.js
+        registerType: 'prompt', // Changed to prompt for better UX
+        includeAssets: [
+          'favicon.ico',
+          'robots.txt',
+          'apple-touch-icon.png',
+          'icons/*.png',
+          'icons/*.svg',
+          'icons/*.ico'
+        ],
+        srcDir: 'public', // Changed to public to match our sw.js location
+        filename: 'sw.js',
+        // Enable in development for testing
+        devOptions: {
+          enabled: true, // Enable in development
+          type: 'module',
+          navigateFallback: 'index.html',
+        },
+        // Generate a service worker with our custom configuration
         manifest: {
-          name: 'Voice101 Book',
+          name: 'Voice101 AI',
           short_name: 'Voice101',
-          description: 'From fundamentals to pro techniques — a handbook for building production-grade Voice AI.',
-          theme_color: '#0d1117',
-          background_color: '#0d1117',
+          description: 'AI-powered voice application',
+          theme_color: '#ffffff',
+          background_color: '#ffffff',
           display: 'standalone',
           start_url: '/',
-          icons: [
+          orientation: 'portrait',
+          lang: 'en-US',
+          categories: ['productivity', 'utilities'],
+          dir: 'ltr',
+          prefer_related_applications: false,
+          related_applications: [],
+          scope: '/',
+          shortcuts: [
             {
-              src: '/assets/images/logo-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
-              purpose: 'any maskable'
+              name: 'New Recording',
+              short_name: 'Record',
+              description: 'Start a new voice recording',
+              url: '/record',
+              icons: [{ src: '/icons/record-192x192.png', sizes: '192x192' }]
             },
             {
-              src: '/assets/images/logo-512x512.png',
+              name: 'My Recordings',
+              short_name: 'Recordings',
+              description: 'View your saved recordings',
+              url: '/recordings',
+              icons: [{ src: '/icons/list-192x192.png', sizes: '192x192' }]
+            }
+          ],
+          icons: [
+            {
+              src: '/icons/icon-72x72.png',
+              sizes: '72x72',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+            {
+              src: '/icons/icon-96x96.png',
+              sizes: '96x96',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+            {
+              src: '/icons/icon-128x128.png',
+              sizes: '128x128',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+            {
+              src: '/icons/icon-144x144.png',
+              sizes: '144x144',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+            {
+              src: '/icons/icon-152x152.png',
+              sizes: '152x152',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+            {
+              src: '/icons/icon-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+            {
+              src: '/icons/icon-384x384.png',
+              sizes: '384x384',
+              type: 'image/png',
+              purpose: 'any maskable',
+            },
+            {
+              src: '/icons/icon-512x512.png',
               sizes: '512x512',
               type: 'image/png',
-              purpose: 'any maskable'
-            }
-          ]
+              purpose: 'any maskable',
+            },
+            {
+              src: '/icons/icon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+          ],
+          screenshots: [
+            {
+              src: '/screenshots/screenshot1.png',
+              sizes: '1280x720',
+              type: 'image/png',
+              form_factor: 'wide',
+              label: 'Voice101 AI Dashboard',
+            },
+            {
+              src: '/screenshots/screenshot2.png',
+              sizes: '750x1334',
+              type: 'image/png',
+              form_factor: 'narrow',
+              label: 'Voice101 AI Mobile View',
+            },
+          ],
         },
         workbox: {
           // Disable the default precache manifest generation
@@ -113,92 +208,59 @@ export default defineConfig(({ mode }) => {
                 cacheName: 'offline-page',
                 expiration: {
                   maxEntries: 1,
+                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+              },
+            },
+            // Cache API responses
+            {
+              urlPattern: /^https?:\/\/api\.example\.com\/.*/i,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'api-cache',
+                networkTimeoutSeconds: 10,
+                expiration: {
+                  maxEntries: 100,
                   maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
                 },
               },
             },
             // Cache static assets
             {
-              urlPattern: /\.(?:js|css|json|html)$/i,
+              urlPattern: /\.[a-z0-9]{8}\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|avif)$/i,
               handler: 'StaleWhileRevalidate',
               options: {
                 cacheName: 'static-assets',
                 expiration: {
-                  maxEntries: 60,
-                  maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                  maxEntries: 200,
+                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
                 },
               },
             },
-            // Cache images
+            // Cache pages for offline use
             {
-              urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
-              handler: 'CacheFirst',
+              urlPattern: ({ request, sameOrigin }) => 
+                sameOrigin && 
+                request.mode === 'navigate' && 
+                !request.url.includes('/api/'),
+              handler: 'NetworkFirst',
               options: {
-                cacheName: 'images',
+                cacheName: 'pages-cache',
+                networkTimeoutSeconds: 5,
                 expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
                 },
               },
-            },
-            // Cache Google Fonts (CSS)
-            {
-              urlPattern: /^https?:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'google-fonts',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              },
-            },
-            // Cache Google Fonts (static files)
-            {
-              urlPattern: /^https?:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-static',
-                expiration: {
-                  maxEntries: 30,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            },
-            {
-              urlPattern: /^https?:\/\/.*\.(woff|woff2|eot|ttf|otf)$/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'fonts-cache',
-                expiration: {
-                  maxEntries: 20,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            },
-            // Cache images
-            {
-              urlPattern: /^https?:\/\/.*\.(png|jpg|jpeg|webp|svg|gif|ico)$/i,
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'images-cache',
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
             },
             // Cache JSON/XML data
             {
@@ -213,11 +275,12 @@ export default defineConfig(({ mode }) => {
                 networkTimeoutSeconds: 10
               }
             },
+            // Fallback for all other requests
             {
               urlPattern: /^https?:\/\/.*$/i,
               handler: 'NetworkFirst',
               options: {
-                cacheName: 'pages-cache',
+                cacheName: 'fallback-cache',
                 expiration: {
                   maxEntries: 50,
                   maxAgeSeconds: 60 * 60 * 24 // 1 day
@@ -226,11 +289,6 @@ export default defineConfig(({ mode }) => {
               }
             }
           ]
-        },
-        devOptions: {
-          enabled: false, // Disable in development
-          type: 'module',
-          navigateFallback: 'index.html',
         },
       }),
       // Image optimization
@@ -269,6 +327,7 @@ export default defineConfig(({ mode }) => {
     ].filter(Boolean) as any[],
     resolve: {
       alias: [
+        // Ensure single React instance
         {
           find: 'react',
           replacement: path.resolve(__dirname, './node_modules/react'),
@@ -277,6 +336,7 @@ export default defineConfig(({ mode }) => {
           find: 'react-dom',
           replacement: path.resolve(__dirname, './node_modules/react-dom'),
         },
+        // Path aliases
         {
           find: '@',
           replacement: path.resolve(__dirname, './src'),

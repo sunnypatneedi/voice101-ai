@@ -10,6 +10,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { CommandPalette } from '@/components/CommandPalette';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
+import ReactDebug from '@/components/ReactDebug';
 
 // Type declarations
 declare global {
@@ -120,8 +121,9 @@ const App: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <TooltipProvider>
+          <ReactDebug />
           <Toaster />
           <Sonner />
           <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />

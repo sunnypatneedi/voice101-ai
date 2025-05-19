@@ -1,33 +1,86 @@
 
 {
-  "name": "Voice101 Book",
+  "name": "Voice101 AI",
   "short_name": "Voice101",
-  "description": "From fundamentals to pro techniques — a handbook for building production-grade Voice AI.",
-  "start_url": "/",
+  "description": "AI-powered voice application",
+  "start_url": "/?source=pwa",
   "display": "standalone",
-  "background_color": "#0d1117",
-  "theme_color": "#0d1117",
-  "orientation": "any",
-  "categories": ["education", "productivity", "utilities"],
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait",
+  "categories": ["productivity", "utilities"],
+  "dir": "ltr",
+  "lang": "en-US",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope": "/",
+  "shortcuts": [
+    {
+      "name": "New Recording",
+      "short_name": "Record",
+      "description": "Start a new voice recording",
+      "url": "/record",
+      "icons": [{ "src": "/icons/record-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Recordings",
+      "short_name": "Recordings",
+      "description": "View your saved recordings",
+      "url": "/recordings",
+      "icons": [{ "src": "/icons/list-192x192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
-      "src": "/assets/images/logo-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/assets/images/logo-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/assets/images/maskable-icon-192x192.png",
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
-      "src": "/assets/images/maskable-icon-512x512.png",
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -41,11 +94,76 @@
   ],
   "screenshots": [
     {
-      "src": "/assets/images/screenshot-1.png",
+      "src": "/screenshots/screenshot1.png",
       "sizes": "1280x720",
       "type": "image/png",
-      "platform": "wide",
-      "label": "Voice101 AI - Homepage"
+      "form_factor": "wide",
+      "label": "Voice101 AI Dashboard"
+    },
+    {
+      "src": "/screenshots/screenshot2.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Voice101 AI Mobile View"
+    }
+  ],
+  "id": "/?source=pwa",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "permissions": [
+    "audio-capture",
+    "clipboard-write",
+    "clipboard-read",
+    "storage"
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+voice101",
+      "url": "/handle-protocol?url=%s"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/open-audio",
+      "accept": {
+        "audio/*": [".mp3", ".wav", ".ogg", ".m4a"]
+      },
+      "icons": [
+        {
+          "src": "/icons/audio-file-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ],
+      "launch_type": "single-client"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "audio",
+          "accept": ["audio/*"]
+        }
+      ]
+    }
+  },
+  "file_browser_handlers": [
+    {
+      "action": "/browse",
+      "accept": {
+        "audio/*": [".mp3", ".wav", ".ogg", ".m4a"]
+      }
     }
   ]
 }
