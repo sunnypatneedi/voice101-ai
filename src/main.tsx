@@ -1,9 +1,97 @@
 import React, { StrictMode, Suspense, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { registerSW } from 'virtual:pwa-register';
+import App from './App';
+import UpdateNotification from './components/UpdateNotification';
+import { useServiceWorker } from './hooks/useServiceWorker';
+import './index.css';
 
-// Diagnostic logging
-console.log('[DIAGNOSTIC] React version:', React.version);
-console.log('[DIAGNOSTIC] React instance:', React);
-console.log('[DIAGNOSTIC] React.useEffect:', React.useEffect);
+// Register service worker with proper scope and error handling
+const registerServiceWorker = async () => {
+  if (!('serviceWorker' in navigator)) {
+    console.warn('Service workers are not supported in this browser');
+    return;
+  }
+
+  try {
+    // Unregister any existing service workers first
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (const registration of registrations) {
+      console.log('Unregistering existing service worker:', registration.scope);
+      await registration.unregister();
+    }
+
+    // Clear all caches
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames.map(cacheName => caches.delete(cacheName))
+      );
+    }
+
+    // Register the service worker with the correct scope
+    const swUrl = '/sw.js';
+    const registration = await navigator.serviceWorker.register(swUrl, { 
+      scope: './' // Use relative path for scope
+    });
+
+    console.log('Service Worker registered with scope:', registration.scope);
+
+    // Check for updates
+    if (registration.waiting) {
+      console.log('Service Worker is waiting to activate');
+      return;
+    }
+
+    // Track updates
+    if (registration.installing) {
+      console.log('Service Worker is installing');
+      registration.installing.addEventListener('statechange', (e) => {
+        console.log('Service Worker state changed:', (e.target as ServiceWorker).state);
+      });
+      return;
+    }
+
+    // Listen for updates
+    registration.addEventListener('updatefound', () => {
+      console.log('New Service Worker found, installing...');
+      const newWorker = registration.installing;
+      if (newWorker) {
+        newWorker.addEventListener('statechange', () => {
+          console.log('New Service Worker state:', newWorker.state);
+        });
+      }
+    });
+
+    // Listen for controller changes
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      console.log('Controller changed, reloading...');
+      window.location.reload();
+    });
+
+    // Check if the service worker is controlling the page
+    if (navigator.serviceWorker.controller) {
+      console.log('Service Worker is controlling the page');
+    } else {
+      console.log('Service Worker is not controlling the page');
+    }
+  } catch (error) {
+    console.error('Error during service worker registration:', error);
+  }
+};
+
+// Register service worker when the app loads in production
+if (process.env.NODE_ENV === 'production' && window.location.protocol === 'https:') {
+  // Wait for the page to be fully loaded before registering the service worker
+  if (document.readyState === 'complete') {
+    registerServiceWorker();
+  } else {
+    window.addEventListener('load', registerServiceWorker);
+  }
+} else if (process.env.NODE_ENV === 'development') {
+  console.log('Service Worker registration is disabled in development mode');
+}
 
 // Debug component to track React in component context
 const ReactDebug = () => {
@@ -13,12 +101,6 @@ const ReactDebug = () => {
   }, []);
   return null;
 };
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import UpdateNotification from './components/UpdateNotification';
-import { useServiceWorker } from './hooks/useServiceWorker';
-import './index.css';
 
 // Simple loading component
 const LoadingFallback = () => (

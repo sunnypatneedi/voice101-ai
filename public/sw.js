@@ -1,14 +1,21 @@
-/// <reference types="vite/client" />
-/// <reference types="vite-plugin-pwa/client" />
+// Service Worker for Voice101 AI
+// This file handles caching, offline support, and background sync
 
-/* eslint-disable no-restricted-globals */
-/* eslint-disable no-undef */
+// Import workbox from CDN with version 7.0.0
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
 
-import { precacheAndRoute } from 'workbox-precaching';
-import { registerRoute } from 'workbox-routing';
-import { CacheFirst, StaleWhileRevalidate, NetworkFirst } from 'workbox-strategies';
-import { CacheableResponsePlugin } from 'workbox-cacheable-response';
-import { ExpirationPlugin } from 'workbox-expiration';
+// Set workbox config with debug mode based on environment
+workbox.setConfig({
+  debug: false, // Set to true for development
+  modulePathPrefix: 'https://storage.googleapis.com/workbox-cdn/releases/7.0.0/'
+});
+
+// Destructure workbox modules for easier access
+const { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } = workbox.precaching;
+const { registerRoute, setDefaultHandler, setCatchHandler } = workbox.routing;
+const { CacheFirst, StaleWhileRevalidate, NetworkFirst, NetworkOnly } = workbox.strategies;
+const { CacheableResponsePlugin } = workbox.cacheableResponse;
+const { ExpirationPlugin } = workbox.expiration;
 
 // Define cache name
 const CACHE_NAME = 'voice101-cache-v1';
