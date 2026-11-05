@@ -6,6 +6,9 @@ import compression from 'vite-plugin-compression';
 import { imagetools } from 'vite-imagetools';
 import path from 'path';
 
+// Deploy uses this file only: Vite resolves vite.config.ts by default for
+// `npm run build` (Netlify netlify.toml, Windsurf/CI, and local builds).
+// Do not introduce alternate vite.config.*.ts files that emit public .map files.
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const isProduction = mode === 'production';
@@ -182,7 +185,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
-      sourcemap: !isProduction,
+      // Never emit downloadable .map files (public repo; live CDN must not serve sourcesContent).
+      // Hardcoded false — do not use !isProduction; mode=development builds must not ship maps either.
+      sourcemap: false,
       minify: isProduction ? 'esbuild' : false,
       target: 'esnext',
       rollupOptions: {
