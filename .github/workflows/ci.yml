@@ -44,6 +44,10 @@ jobs:
   auto-label:
     name: Auto Label
     runs-on: ubuntu-latest
+    # Default GITHUB_TOKEN was contents:read only; labeler needs write to set PR labels.
+    permissions:
+      contents: read
+      pull-requests: write
     
     steps:
       - uses: actions/labeler@v4
